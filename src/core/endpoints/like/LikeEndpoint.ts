@@ -10,7 +10,8 @@ export const PATH = '/like/like';
 export function build(options: LikeEndpointOptions): ILikeRequest {
   return {
     target: {
-      videoId: options.target.video_id
+      videoId: options.target.video_id,
+      playlistId: options.target.playlist_id
     },
     ...{
       client: options.client

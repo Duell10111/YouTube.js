@@ -193,10 +193,11 @@ export type LikeEndpointOptions = {
    */
   client?: InnerTubeClient;
   /**
-   * The target video.
+   * The target video or playlist.
    */
   target: {
-    video_id: string;
+    video_id?: string;
+    playlist_id?: string;
   }
 }
 

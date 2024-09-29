@@ -2,6 +2,7 @@ import { InnertubeError, throwIfMissing } from '../../utils/Utils.js';
 import { EditPlaylistEndpoint } from '../endpoints/browse/index.js';
 import { BrowseEndpoint } from '../endpoints/index.js';
 import { CreateEndpoint, DeleteEndpoint } from '../endpoints/playlist/index.js';
+import { LikeEndpoint } from '../endpoints/like/index.js';
 import Playlist from '../../parser/youtube/Playlist.js';
 
 import type { Actions } from '../index.js';
@@ -63,6 +64,44 @@ export default class PlaylistManager {
       status_code: response.status_code,
       data: response.data
     };
+  }
+  
+  /**
+   * Adds a given playlist to the library of a user.
+   * @param playlist_id - The playlist ID.
+   */
+  async likePlaylist(playlist_id: string){
+    throwIfMissing({ playlist_id });
+
+    if (!this.#actions.session.logged_in)
+      throw new InnertubeError('You must be signed in to perform this operation.');
+
+    const response = await this.#actions.execute(
+      LikeEndpoint.PATH, LikeEndpoint.build({
+        target: { playlist_id }
+      })
+    );
+    
+    return response;
+  }
+
+  /**
+   * Remove a given playlist to the library of a user.
+   * @param playlist_id - The playlist ID.
+   */
+  async removeLikePlaylist(playlist_id: string){
+    throwIfMissing({ playlist_id });
+
+    if (!this.#actions.session.logged_in)
+      throw new InnertubeError('You must be signed in to perform this operation.');
+
+    const response = await this.#actions.execute(
+      LikeEndpoint.PATH, LikeEndpoint.build({
+        target: { playlist_id }
+      })
+    );
+
+    return response;
   }
 
   /**
