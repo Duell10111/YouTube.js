@@ -10,7 +10,8 @@ export const PATH = '/like/removelike';
 export function build(options: RemoveLikeEndpointOptions): IRemoveLikeRequest {
   return {
     target: {
-      videoId: options.target.video_id
+      videoId: options.target.video_id,
+      playlistId: options.target.playlist_id
     },
     ...{
       client: options.client
