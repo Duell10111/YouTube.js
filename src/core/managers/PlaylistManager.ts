@@ -2,7 +2,7 @@ import { InnertubeError, throwIfMissing } from '../../utils/Utils.js';
 import { EditPlaylistEndpoint } from '../endpoints/browse/index.js';
 import { BrowseEndpoint } from '../endpoints/index.js';
 import { CreateEndpoint, DeleteEndpoint } from '../endpoints/playlist/index.js';
-import { LikeEndpoint } from '../endpoints/like/index.js';
+import { LikeEndpoint, RemoveLikeEndpoint } from '../endpoints/like/index.js';
 import Playlist from '../../parser/youtube/Playlist.js';
 
 import type { Actions } from '../index.js';
@@ -96,7 +96,7 @@ export default class PlaylistManager {
       throw new InnertubeError('You must be signed in to perform this operation.');
 
     const response = await this.#actions.execute(
-      LikeEndpoint.PATH, LikeEndpoint.build({
+      RemoveLikeEndpoint.PATH, RemoveLikeEndpoint.build({
         target: { playlist_id }
       })
     );
