@@ -1,5 +1,6 @@
 import { createWriteStream, existsSync } from 'node:fs';
-import { Innertube, Utils, YT, YTMusic, YTNodes } from '../bundle/node.cjs';
+import { Innertube, Utils, YT, YTMusic, YTNodes, ClientType } from '../bundle/node.cjs';
+import {InnerTubeClient} from "../src/types";
 
 jest.useRealTimers();
 
@@ -7,7 +8,7 @@ describe('YouTube.js Tests', () => {
   let innertube: Innertube;
 
   beforeAll(async () => {
-    innertube = await Innertube.create({ generate_session_locally: true });
+    innertube = await Innertube.create({ generate_session_locally: false });
   });
 
   describe('Main', () => {
@@ -148,6 +149,18 @@ describe('YouTube.js Tests', () => {
       //   expect(incremental_continuation.contents).toBeDefined();
       //   expect(incremental_continuation.contents.contents?.length).toBeGreaterThan(0);
       // });
+    });
+
+    test('Innertube#getHomeFeedTV', async () => {
+      const client : InnerTubeClient = "TV"
+      const home_feed = new YTNodes.NavigationEndpoint({ browseEndpoint: { 
+        browseId: 'default'
+      } });
+      const response = await home_feed.call(innertube.session.actions, {
+        client,
+        parse: true,
+      })
+      console.log(home_feed);
     });
 
     test('Innertube#getGuide', async () => {
