@@ -152,7 +152,7 @@ describe('YouTube.js Tests', () => {
     });
 
     test('Innertube#getHomeFeedTV', async () => {
-      const client : InnerTubeClient = "TV"
+      const client = "TV"
       const home_feed = new YTNodes.NavigationEndpoint({ browseEndpoint: { 
         browseId: 'default'
       } });
@@ -475,6 +475,15 @@ describe('YouTube.js Tests', () => {
       const suggestions = await innertube.music.getSearchSuggestions('Joji - In Tongues');
       expect(suggestions).toBeDefined();
       expect(suggestions?.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('YouTube TV', () => {
+    test('Innertube#tv.getHomeFeed', async () => {
+      const home = await innertube.tv.getHomeFeed()
+      expect(home).toBeDefined();
+      expect(home.sections).toBeDefined();
+      expect(home.sections).toBeGreaterThan(0);
     });
   });
 

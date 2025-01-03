@@ -215,6 +215,8 @@ export { default as ItemSectionTab } from './classes/ItemSectionTab.js';
 export { default as ItemSectionTabbedHeader } from './classes/ItemSectionTabbedHeader.js';
 export { default as LikeButton } from './classes/LikeButton.js';
 export { default as LikeButtonView } from './classes/LikeButtonView.js';
+export { default as Line } from './classes/Line.js';
+export { default as LineItem } from './classes/LineItem.js';
 export { default as LiveChat } from './classes/LiveChat.js';
 export { default as AddBannerToLiveChatCommand } from './classes/livechat/AddBannerToLiveChatCommand.js';
 export { default as AddChatItemAction } from './classes/livechat/AddChatItemAction.js';
@@ -455,6 +457,7 @@ export { default as ThumbnailOverlayBadgeView } from './classes/ThumbnailOverlay
 export { default as ThumbnailOverlayBottomPanel } from './classes/ThumbnailOverlayBottomPanel.js';
 export { default as ThumbnailOverlayEndorsement } from './classes/ThumbnailOverlayEndorsement.js';
 export { default as ThumbnailOverlayHoverText } from './classes/ThumbnailOverlayHoverText.js';
+export { default as ThumbnailOverlayIcon } from './classes/ThumbnailOverlayIcon.js';
 export { default as ThumbnailOverlayInlineUnplayable } from './classes/ThumbnailOverlayInlineUnplayable.js';
 export { default as ThumbnailOverlayLoadingPreview } from './classes/ThumbnailOverlayLoadingPreview.js';
 export { default as ThumbnailOverlayNowPlaying } from './classes/ThumbnailOverlayNowPlaying.js';
@@ -465,6 +468,9 @@ export { default as ThumbnailOverlaySidePanel } from './classes/ThumbnailOverlay
 export { default as ThumbnailOverlayTimeStatus } from './classes/ThumbnailOverlayTimeStatus.js';
 export { default as ThumbnailOverlayToggleButton } from './classes/ThumbnailOverlayToggleButton.js';
 export { default as ThumbnailView } from './classes/ThumbnailView.js';
+export { default as Tile } from './classes/Tile.js';
+export { default as TileHeader } from './classes/TileHeader.js';
+export { default as TileMetadata } from './classes/TileMetadata.js';
 export { default as TimedMarkerDecoration } from './classes/TimedMarkerDecoration.js';
 export { default as TitleAndButtonListHeader } from './classes/TitleAndButtonListHeader.js';
 export { default as ToggleButton } from './classes/ToggleButton.js';
