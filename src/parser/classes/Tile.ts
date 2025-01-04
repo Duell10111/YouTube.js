@@ -7,11 +7,11 @@ import TileHeader from './TileHeader.js';
 export default class Tile extends YTNode {
   static type = 'Tile';
     
-  style: 'TILE_STYLE_YTLR_DEFAULT' | 'TILE_STYLE_YTLR_SHORTS';
+  style: 'TILE_STYLE_YTLR_DEFAULT' | 'TILE_STYLE_YTLR_ROUND' | 'TILE_STYLE_YTLR_SHORTS';
   header: TileHeader | null;
   on_select_endpoint: NavigationEndpoint;
   content_id: string;
-  content_type: 'TILE_CONTENT_TYPE_VIDEO' | 'TILE_CONTENT_TYPE_SHORTS'; // TODO: Extend?
+  content_type: 'TILE_CONTENT_TYPE_VIDEO' | 'TILE_CONTENT_TYPE_SHORTS' | 'TILE_CONTENT_TYPE_CHANNEL'; // TODO: Extend?
   on_long_press_endpoint: NavigationEndpoint;
   metadata?: TileMetadata | null;
   on_focus_endpoint?: NavigationEndpoint;
