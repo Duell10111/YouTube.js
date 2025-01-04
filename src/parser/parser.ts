@@ -10,6 +10,7 @@ import {
   Continuation,
   ContinuationCommand,
   GridContinuation,
+  HorizontalListContinuation,
   ItemSectionContinuation,
   LiveChatContinuation,
   MusicPlaylistShelfContinuation,
@@ -717,6 +718,8 @@ export function parseLC(data: RawNode) {
     return new ItemSectionContinuation(data.itemSectionContinuation);
   if (data.sectionListContinuation)
     return new SectionListContinuation(data.sectionListContinuation);
+  if (data.horizontalListContinuation)
+    return new HorizontalListContinuation(data.horizontalListContinuation);
   if (data.liveChatContinuation)
     return new LiveChatContinuation(data.liveChatContinuation);
   if (data.musicPlaylistShelfContinuation)

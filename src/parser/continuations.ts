@@ -77,6 +77,21 @@ export class SectionListContinuation extends YTNode {
   }
 }
 
+export class HorizontalListContinuation extends YTNode {
+  static readonly type = 'horizontalListContinuation';
+
+  continuation: string;
+  items: ObservedArray<YTNode> | null;
+
+  constructor(data: RawNode) {
+    super();
+    this.items = Parser.parse(data.items, true);
+    this.continuation =
+      data.continuations?.[0]?.nextContinuationData?.continuation ||
+      data.continuations?.[0]?.reloadContinuationData?.continuation || null;
+  }
+}
+
 export class MusicPlaylistShelfContinuation extends YTNode {
   static readonly type = 'musicPlaylistShelfContinuation';
 

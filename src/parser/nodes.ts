@@ -344,6 +344,7 @@ export { default as PivotBar } from './classes/mweb/PivotBar.js';
 export { default as PivotBarItem } from './classes/mweb/PivotBarItem.js';
 export { default as TopbarMenuButton } from './classes/mweb/TopbarMenuButton.js';
 export { default as NavigationEndpoint } from './classes/NavigationEndpoint.js';
+export { default as NextContinuationData } from './classes/NextContinuationData.js';
 export { default as Notification } from './classes/Notification.js';
 export { default as NotificationAction } from './classes/NotificationAction.js';
 export { default as PageHeader } from './classes/PageHeader.js';
