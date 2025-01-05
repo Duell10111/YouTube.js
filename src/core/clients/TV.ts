@@ -3,8 +3,8 @@ import { Parser } from '../../parser/index.js';
 import type { Actions, Session } from '../index.js';
 import type { InnerTubeClient } from '../../types/index.js';
 import NavigationEndpoint from '../../parser/classes/NavigationEndpoint.js';
-import { HomeFeed } from '../../parser/yttv/index.js';
-import { InnertubeError } from '../../utils/Utils.js';
+import { HomeFeed, VideoInfo } from '../../parser/yttv/index.js';
+import { generateRandomString, InnertubeError, throwIfMissing } from '../../utils/Utils.js';
 import HorizontalList from '../../parser/classes/HorizontalList.js';
 import type { YTNode } from '../../parser/helpers.js';
 
@@ -15,6 +15,47 @@ export default class TV {
   constructor(session: Session) {
     this.#session = session;
     this.#actions = session.actions;
+  }
+
+  async getInfo(target: string | NavigationEndpoint, client?: InnerTubeClient): Promise<VideoInfo> {
+    throwIfMissing({ target });
+
+    const payload = {
+      videoId: target instanceof NavigationEndpoint ? target.payload?.videoId : target,
+      playlistId: target instanceof NavigationEndpoint ? target.payload?.playlistId : undefined,
+      playlistIndex: target instanceof NavigationEndpoint ? target.payload?.playlistIndex : undefined,
+      params: target instanceof NavigationEndpoint ? target.payload?.params : undefined,
+      racyCheckOk: true,
+      contentCheckOk: true
+    };
+
+    const watch_endpoint = new NavigationEndpoint({ watchEndpoint: payload });
+    const watch_next_endpoint = new NavigationEndpoint({ watchNextEndpoint: payload });
+
+    const watch_response = watch_endpoint.call(this.#session.actions, {
+      playbackContext: {
+        contentPlaybackContext: {
+          vis: 0,
+          splay: false,
+          lactMilliseconds: '-1',
+          signatureTimestamp: this.#session.player?.sts
+        }
+      },
+      serviceIntegrityDimensions: {
+        poToken: this.#session.po_token
+      },
+      client
+    });
+
+    const watch_next_response = await watch_next_endpoint.call(this.#session.actions, {
+      client
+    });
+
+    const response = await Promise.all([ watch_response, watch_next_response ]);
+
+    const cpn = generateRandomString(16);
+
+    return new VideoInfo(response, this.#actions, cpn);
   }
 
   async getHomeFeed(): Promise<HomeFeed> {
