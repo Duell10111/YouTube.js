@@ -6,7 +6,7 @@ import type ContinuationItem from '../classes/ContinuationItem.js';
 import ItemSection from '../classes/ItemSection.js';
 import type LiveChat from '../classes/LiveChat.js';
 import type MerchandiseShelf from '../classes/MerchandiseShelf.js';
-import type PlayerOverlay from '../classes/PlayerOverlay.js';
+import PlayerOverlay from '../classes/PlayerOverlay.js';
 import type VideoSecondaryInfo from '../classes/VideoSecondaryInfo.js';
 import type NavigationEndpoint from '../classes/NavigationEndpoint.js';
 
@@ -64,6 +64,8 @@ export default class VideoInfo extends MediaInfo {
       this.watch_next_feed = single_col.pivot?.contents;
       
       this.autoplay = single_col.autoplay.autoplay;
+
+      this.player_overlays = next?.player_overlays?.item().as(PlayerOverlay);
     }
 
     if (results) {
