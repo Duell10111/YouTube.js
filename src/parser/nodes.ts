@@ -351,6 +351,7 @@ export { default as PageHeaderView } from './classes/PageHeaderView.js';
 export { default as PageIntroduction } from './classes/PageIntroduction.js';
 export { default as PanelFooterView } from './classes/PanelFooterView.js';
 export { default as PivotButton } from './classes/PivotButton.js';
+export { default as PivotVideo } from './classes/PivotVideo.js';
 export { default as PlayerAnnotationsExpanded } from './classes/PlayerAnnotationsExpanded.js';
 export { default as PlayerCaptionsTracklist } from './classes/PlayerCaptionsTracklist.js';
 export { default as PlayerControlsOverlay } from './classes/PlayerControlsOverlay.js';
@@ -508,6 +509,7 @@ export { default as VideoAttributesSectionView } from './classes/VideoAttributes
 export { default as VideoAttributeView } from './classes/VideoAttributeView.js';
 export { default as VideoBadgeView } from './classes/VideoBadgeView.js';
 export { default as VideoCard } from './classes/VideoCard.js';
+export { default as VideoDescriptionChannelSection } from './classes/VideoDescriptionChannelSection.js';
 export { default as VideoDescriptionCourseSection } from './classes/VideoDescriptionCourseSection.js';
 export { default as VideoDescriptionHeader } from './classes/VideoDescriptionHeader.js';
 export { default as VideoDescriptionInfocardsSection } from './classes/VideoDescriptionInfocardsSection.js';

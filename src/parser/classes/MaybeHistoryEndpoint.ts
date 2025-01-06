@@ -1,7 +1,7 @@
 import { YTNode } from '../helpers.js';
 import { type RawNode, Parser } from '../index.js';
-import NavigationEndpoint from "./NavigationEndpoint.js";
-import PreviewButton from "./PreviewButton.js";
+import NavigationEndpoint from './NavigationEndpoint.js';
+import PreviewButton from './PreviewButton.js';
 
 export default class MaybeHistoryEndpoint extends YTNode {
   static type = 'MaybeHistoryEndpoint';

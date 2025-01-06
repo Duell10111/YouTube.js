@@ -1,6 +1,6 @@
 import { Parser, type RawNode } from '../index.js';
 import { YTNode } from '../helpers.js';
-import AvatarLockup from "./AvatarLockup.js";
+import AvatarLockup from './AvatarLockup.js';
 
 export default class ShelfHeader extends YTNode {
   static type = 'ShelfHeader';
