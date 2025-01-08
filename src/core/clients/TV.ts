@@ -7,6 +7,10 @@ import { HomeFeed, VideoInfo } from '../../parser/yttv/index.js';
 import { generateRandomString, InnertubeError, throwIfMissing } from '../../utils/Utils.js';
 import HorizontalList from '../../parser/classes/HorizontalList.js';
 import type { YTNode } from '../../parser/helpers.js';
+import Playlist from '../../parser/yttv/Playlist.js';
+import Library from '../../parser/yttv/Library.js';
+import SubscriptionsFeed from '../../parser/yttv/SubscriptionsFeed.js';
+import PlaylistsFeed from '../../parser/yttv/PlaylistsFeed.js';
 
 export default class TV {
   #session: Session;
@@ -67,6 +71,44 @@ export default class TV {
       client
     });
     return new HomeFeed(response, this.#actions);
+  }
+
+  async getLibrary(): Promise<Library> {
+    const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FElibrary' } });
+    const response = await browse_endpoint.call(this.#session.actions, {
+      client: 'TV'
+    });
+    return new Library(response, this.#actions);
+  }
+  
+  async getSubscriptionsFeed(): Promise<SubscriptionsFeed> {
+    const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEsubscriptions' } });
+    const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
+    return new SubscriptionsFeed(response, this.#actions);
+  }
+
+  /**
+   * Retrieves the user's playlists.
+   */
+  async getPlaylists(): Promise<PlaylistsFeed> {
+    const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEplaylist_aggregation' } });
+    const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
+    return new PlaylistsFeed(response, this.#actions);
+  }
+
+  async getPlaylist(id: string): Promise<Playlist> {
+    throwIfMissing({ id });
+
+    if (!id.startsWith('VL')) {
+      id = `VL${id}`;
+    }
+
+    const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: id } });
+    const response = await browse_endpoint.call(this.#session.actions, {
+      client: 'TV'
+    });
+
+    return new Playlist(response, this.#actions);
   }
   
   async fetchContinuationData(item: YTNode, client?: InnerTubeClient) {

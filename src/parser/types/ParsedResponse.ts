@@ -47,7 +47,7 @@ export interface IParsedResponse {
   on_response_received_commands_memo?: Memo;
   continuation?: Continuation;
   continuation_contents?: ItemSectionContinuation | SectionListContinuation | HorizontalListContinuation | LiveChatContinuation | MusicPlaylistShelfContinuation |
-  MusicShelfContinuation | GridContinuation | PlaylistPanelContinuation | ContinuationCommand;
+  MusicShelfContinuation | GridContinuation | PlaylistPanelContinuation | PlaylistVideoListContinuation | ContinuationCommand;
   continuation_contents_memo?: Memo;
   metadata?: SuperParsedResult<YTNode>;
   microformat?: YTNode;

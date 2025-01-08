@@ -165,6 +165,7 @@ export { default as EndScreenPlaylist } from './classes/EndScreenPlaylist.js';
 export { default as EndScreenVideo } from './classes/EndScreenVideo.js';
 export { default as EngagementPanelSectionList } from './classes/EngagementPanelSectionList.js';
 export { default as EngagementPanelTitleHeader } from './classes/EngagementPanelTitleHeader.js';
+export { default as EntityMetadata } from './classes/EntityMetadata.js';
 export { default as EomSettingsDisclaimer } from './classes/EomSettingsDisclaimer.js';
 export { default as ExpandableMetadata } from './classes/ExpandableMetadata.js';
 export { default as ExpandableTab } from './classes/ExpandableTab.js';
@@ -475,6 +476,7 @@ export { default as ThumbnailOverlayPinking } from './classes/ThumbnailOverlayPi
 export { default as ThumbnailOverlayPlaybackStatus } from './classes/ThumbnailOverlayPlaybackStatus.js';
 export { default as ThumbnailOverlayResumePlayback } from './classes/ThumbnailOverlayResumePlayback.js';
 export { default as ThumbnailOverlaySidePanel } from './classes/ThumbnailOverlaySidePanel.js';
+export { default as ThumbnailOverlayStackingEffect } from './classes/ThumbnailOverlayStackingEffect.js';
 export { default as ThumbnailOverlayTimeStatus } from './classes/ThumbnailOverlayTimeStatus.js';
 export { default as ThumbnailOverlayToggleButton } from './classes/ThumbnailOverlayToggleButton.js';
 export { default as ThumbnailView } from './classes/ThumbnailView.js';
@@ -495,6 +497,11 @@ export { default as TranscriptSearchPanel } from './classes/TranscriptSearchPane
 export { default as TranscriptSectionHeader } from './classes/TranscriptSectionHeader.js';
 export { default as TranscriptSegment } from './classes/TranscriptSegment.js';
 export { default as TranscriptSegmentList } from './classes/TranscriptSegmentList.js';
+export { default as TvBrowse } from './classes/TvBrowse.js';
+export { default as TvSecondaryNav } from './classes/TvSecondaryNav.js';
+export { default as TvSecondaryNavSection } from './classes/TvSecondaryNavSection.js';
+export { default as TvSurfaceContent } from './classes/TvSurfaceContent.js';
+export { default as TwoColumn } from './classes/TwoColumn.js';
 export { default as TwoColumnBrowseResults } from './classes/TwoColumnBrowseResults.js';
 export { default as TwoColumnSearchResults } from './classes/TwoColumnSearchResults.js';
 export { default as TwoColumnWatchNextResults } from './classes/TwoColumnWatchNextResults.js';
