@@ -16,7 +16,8 @@ import {
   MusicPlaylistShelfContinuation,
   MusicShelfContinuation,
   NavigateAction,
-  PlaylistPanelContinuation,
+  PlaylistPanelContinuation, 
+  PlaylistVideoListContinuation,
   ReloadContinuationItemsCommand,
   SectionListContinuation,
   ShowMiniplayerCommand
@@ -709,6 +710,8 @@ export function parseLC(data: RawNode) {
     return new GridContinuation(data.gridContinuation);
   if (data.playlistPanelContinuation)
     return new PlaylistPanelContinuation(data.playlistPanelContinuation);
+  if (data.playlistVideoListContinuation)
+    return new PlaylistVideoListContinuation(data.playlistVideoListContinuation);
   if (data.continuationCommand)
     return new ContinuationCommand(data.continuationCommand);
 

@@ -151,6 +151,19 @@ export class PlaylistPanelContinuation extends YTNode {
   }
 }
 
+export class PlaylistVideoListContinuation extends YTNode {
+  static readonly type = 'playlistVideoListContinuation';
+
+  continuation?: string;
+  contents: ObservedArray<YTNode> | null;
+
+  constructor(data: RawNode) {
+    super();
+    this.contents = Parser.parseArray(data.contents);
+    this.continuation = data.continuations?.[0]?.nextContinuationData?.continuation || undefined;
+  }
+}
+
 export class Continuation extends YTNode {
   static readonly type = 'continuation';
 
