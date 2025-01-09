@@ -3,7 +3,7 @@ import { Parser } from '../../parser/index.js';
 import type { Actions, Session } from '../index.js';
 import type { InnerTubeClient } from '../../types/index.js';
 import NavigationEndpoint from '../../parser/classes/NavigationEndpoint.js';
-import { HomeFeed, VideoInfo } from '../../parser/yttv/index.js';
+import { HomeFeed, VideoInfo, MyYoutubeFeed } from '../../parser/yttv/index.js';
 import { generateRandomString, InnertubeError, throwIfMissing } from '../../utils/Utils.js';
 import HorizontalList from '../../parser/classes/HorizontalList.js';
 import type { YTNode } from '../../parser/helpers.js';
@@ -94,6 +94,15 @@ export default class TV {
     const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEplaylist_aggregation' } });
     const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
     return new PlaylistsFeed(response, this.#actions);
+  }
+
+  /**
+   * Retrieves the user's My YouTube page.
+   */
+  async getMyYoutubeFeed(): Promise<MyYoutubeFeed> {
+    const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEmy_youtube' } });
+    const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
+    return new MyYoutubeFeed(response, this.#actions);
   }
 
   async getPlaylist(id: string): Promise<Playlist> {

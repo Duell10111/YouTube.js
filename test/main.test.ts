@@ -522,7 +522,22 @@ describe('YouTube.js Tests', () => {
 
       const info = await innertube.tv.getPlaylists();
       console.log(info);
-      
+    });
+
+    test('Innertube#tv.getMyYoutubeFeed', async () => {
+      await innertube.session.signIn();
+
+      // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+      await innertube.session.oauth.cacheCredentials();
+
+      const myYoutubeFeed = await innertube.tv.getMyYoutubeFeed();
+      expect(myYoutubeFeed).toBeDefined();
+      console.log(myYoutubeFeed);
+      const tab = myYoutubeFeed.tabs![10];
+      const otherTab = await myYoutubeFeed.selectTab(tab);
+      console.log(otherTab);
+      const cont = await otherTab.getContinuation();
+      console.log(cont)
     });
 
     test('Innertube#tv.getPlaylist', async () => {
