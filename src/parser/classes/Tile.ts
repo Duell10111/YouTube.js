@@ -7,7 +7,7 @@ import TileHeader from './TileHeader.js';
 export default class Tile extends YTNode {
   static type = 'Tile';
     
-  style: 'TILE_STYLE_YTLR_DEFAULT' | 'TILE_STYLE_YTLR_ROUND' | 'TILE_STYLE_YTLR_SHORTS' | 'TILE_STYLE_YTLR_EDU' | 'TILE_STYLE_YTLR_VERTICAL_LIST';
+  style: 'TILE_STYLE_YTLR_DEFAULT' | 'TILE_STYLE_YTLR_ROUND' | 'TILE_STYLE_YTLR_SHORTS' | 'TILE_STYLE_YTLR_EDU' | 'TILE_STYLE_YTLR_WORMHOLE_RECTANGULAR' | 'TILE_STYLE_YTLR_VERTICAL_LIST';
   header: TileHeader | null;
   on_select_endpoint: NavigationEndpoint;
   content_id?: string;

@@ -120,6 +120,8 @@ export default class TV {
     return new Playlist(response, this.#actions);
   }
   
+  // Utils
+  
   async fetchContinuationData(item: YTNode, client?: InnerTubeClient) {
     let continuation: string | undefined;
     
@@ -142,5 +144,39 @@ export default class TV {
 
     const parser = Parser.parseResponse<IBrowseResponse>(data.data);
     return parser.continuation_contents;
+  }
+  
+  // Interactions for TV (for default OAuth login)
+
+  /**
+   * Adds videos to a given playlist.
+   * @param playlist_id - The playlist ID.
+   * @param video_ids - An array of video IDs to add to the playlist.
+   * @param client - Innertube Client to use for request
+   */
+  async addVideos(playlist_id: string, video_ids: string[], client?: InnerTubeClient): Promise<{ playlist_id: string; action_result: any }> {
+    throwIfMissing({ playlist_id, video_ids });
+
+    if (!this.#actions.session.logged_in)
+      throw new InnertubeError('You must be signed in to perform this operation.');
+
+    const playlist_edit_endpoint = new NavigationEndpoint({
+      playlistEditEndpoint: {
+        playlistId: playlist_id,
+        actions: video_ids.map((id) => ({
+          action: 'ACTION_ADD_VIDEO',
+          addedVideoId: id
+        }))
+      }
+    });
+
+    const response = await playlist_edit_endpoint.call(this.#actions, {
+      client
+    });
+
+    return {
+      playlist_id,
+      action_result: response.data.actions // TODO: implement actions in the parser
+    };
   }
 }
