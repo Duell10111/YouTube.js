@@ -2,8 +2,10 @@ import type { Memo, ObservedArray, SuperParsedResult, YTNode } from '../helpers.
 import type {
   ReloadContinuationItemsCommand, Continuation, GridContinuation,
   ItemSectionContinuation, LiveChatContinuation, MusicPlaylistShelfContinuation, MusicShelfContinuation,
-  PlaylistPanelContinuation, SectionListContinuation, ContinuationCommand, ShowMiniplayerCommand, NavigateAction, 
-  HorizontalListContinuation
+  PlaylistPanelContinuation, SectionListContinuation, ContinuationCommand, ShowMiniplayerCommand, NavigateAction,
+  PlaylistVideoListContinuation,
+  HorizontalListContinuation,
+  TvSurfaceContentContinuation
 } from '../index.js';
 
 import type { CpnSource } from './RawResponse.js';
@@ -47,7 +49,7 @@ export interface IParsedResponse {
   on_response_received_commands_memo?: Memo;
   continuation?: Continuation;
   continuation_contents?: ItemSectionContinuation | SectionListContinuation | HorizontalListContinuation | LiveChatContinuation | MusicPlaylistShelfContinuation |
-  MusicShelfContinuation | GridContinuation | PlaylistPanelContinuation | PlaylistVideoListContinuation | ContinuationCommand;
+  MusicShelfContinuation | GridContinuation | PlaylistPanelContinuation | PlaylistVideoListContinuation | TvSurfaceContentContinuation | ContinuationCommand;
   continuation_contents_memo?: Memo;
   metadata?: SuperParsedResult<YTNode>;
   microformat?: YTNode;
