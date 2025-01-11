@@ -193,12 +193,13 @@ export default class TV {
     const like_playlist_endpoint = new NavigationEndpoint({
       likeEndpoint: {
         status: 'LIKE',
-        target: playlist_id,
-        client: 'TV'
+        target: playlist_id
       }
     });
 
-    return await like_playlist_endpoint.call(this.#actions);
+    return await like_playlist_endpoint.call(this.#actions, {
+      client: 'TV'
+    });
   }
 
   /**
@@ -214,11 +215,12 @@ export default class TV {
     const remove_like_playlist_endpoint = new NavigationEndpoint({
       likeEndpoint: {
         status: 'INDIFFERENT',
-        target: playlist_id,
-        client: 'TV'
+        target: playlist_id
       }
     });
 
-    return await remove_like_playlist_endpoint.call(this.#actions);
+    return await remove_like_playlist_endpoint.call(this.#actions, {
+      client: 'TV'
+    });
   }
 }
