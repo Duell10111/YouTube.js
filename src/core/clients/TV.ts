@@ -179,4 +179,46 @@ export default class TV {
       action_result: response.data.actions // TODO: implement actions in the parser
     };
   }
+
+  /**
+   * Adds a given playlist to the library of a user.
+   * @param playlist_id - The playlist ID.
+   */
+  async addToLibrary(playlist_id: string){
+    throwIfMissing({ playlist_id });
+
+    if (!this.#actions.session.logged_in)
+      throw new InnertubeError('You must be signed in to perform this operation.');
+
+    const like_playlist_endpoint = new NavigationEndpoint({
+      likeEndpoint: {
+        status: 'LIKE',
+        target: playlist_id,
+        client: 'TV'
+      }
+    });
+
+    return await like_playlist_endpoint.call(this.#actions);
+  }
+
+  /**
+   * Remove a given playlist to the library of a user.
+   * @param playlist_id - The playlist ID.
+   */
+  async removeFromLibrary(playlist_id: string){
+    throwIfMissing({ playlist_id });
+
+    if (!this.#actions.session.logged_in)
+      throw new InnertubeError('You must be signed in to perform this operation.');
+
+    const remove_like_playlist_endpoint = new NavigationEndpoint({
+      likeEndpoint: {
+        status: 'INDIFFERENT',
+        target: playlist_id,
+        client: 'TV'
+      }
+    });
+
+    return await remove_like_playlist_endpoint.call(this.#actions);
+  }
 }

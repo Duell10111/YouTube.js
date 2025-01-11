@@ -16,11 +16,11 @@ import {
   MusicPlaylistShelfContinuation,
   MusicShelfContinuation,
   NavigateAction,
-  PlaylistPanelContinuation, 
+  PlaylistPanelContinuation,
   PlaylistVideoListContinuation,
   ReloadContinuationItemsCommand,
   SectionListContinuation,
-  ShowMiniplayerCommand
+  ShowMiniplayerCommand, TvSurfaceContentContinuation
 } from './continuations.js';
 
 import AudioOnlyPlayability from './classes/AudioOnlyPlayability.js';
@@ -712,6 +712,8 @@ export function parseLC(data: RawNode) {
     return new PlaylistPanelContinuation(data.playlistPanelContinuation);
   if (data.playlistVideoListContinuation)
     return new PlaylistVideoListContinuation(data.playlistVideoListContinuation);
+  if (data.tvSurfaceContentContinuation)
+    return new TvSurfaceContentContinuation(data.tvSurfaceContentContinuation);
   if (data.continuationCommand)
     return new ContinuationCommand(data.continuationCommand);
 

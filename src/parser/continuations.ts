@@ -164,6 +164,19 @@ export class PlaylistVideoListContinuation extends YTNode {
   }
 }
 
+export class TvSurfaceContentContinuation extends YTNode {
+  static readonly type = 'tvSurfaceContentContinuation';
+
+  header: YTNode | null;
+  content: YTNode | null;
+
+  constructor(data: RawNode) {
+    super();
+    this.content = Parser.parseItem(data.content);
+    this.header = Parser.parseItem(data.header);
+  }
+}
+
 export class Continuation extends YTNode {
   static readonly type = 'continuation';
 
