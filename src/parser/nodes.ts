@@ -401,6 +401,7 @@ export { default as ReelPlayerHeader } from './classes/ReelPlayerHeader.js';
 export { default as ReelPlayerOverlay } from './classes/ReelPlayerOverlay.js';
 export { default as ReelShelf } from './classes/ReelShelf.js';
 export { default as RelatedChipCloud } from './classes/RelatedChipCloud.js';
+export { default as ReloadContinuationData } from './classes/ReloadContinuationData.js';
 export { default as RichGrid } from './classes/RichGrid.js';
 export { default as RichItem } from './classes/RichItem.js';
 export { default as RichListHeader } from './classes/RichListHeader.js';

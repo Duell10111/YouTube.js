@@ -6,6 +6,9 @@ import SectionList from './SectionList.js';
 import Text from './misc/Text.js';
 import AutonavEndpoint from './AutonavEndpoint.js';
 import MaybeHistoryEndpoint from './MaybeHistoryEndpoint.js';
+import Author from './misc/Author.js';
+import Menu from './menus/Menu.js';
+import type NavigationEndpoint from './NavigationEndpoint.js';
 
 export default class SingleColumnWatchNextResults extends YTNode {
   static type = 'SingleColumnWatchNextResults';
@@ -31,6 +34,19 @@ export default class SingleColumnWatchNextResults extends YTNode {
       tracking_params: string
     }
   };
+  playlist?: {
+    id: string,
+    title: string,
+    author: Text | Author,
+    contents: YTNode[],
+    current_index: number,
+    is_infinite: boolean,
+    menu: Menu | null
+    endpoint: NavigationEndpoint;
+    isEditable: boolean;
+    totalVideos: number;
+    totalVideosText: Text;
+  };
   pivot: SectionList | null;
 
   constructor(data: RawNode) {
@@ -55,6 +71,25 @@ export default class SingleColumnWatchNextResults extends YTNode {
         tracking_params: data.autoplay.autoplay.trackingParams
       }
     };
+    const playlistData = data.playlist?.playlist;
+    
+    if (playlistData) {
+      this.playlist = {
+        id: playlistData.playlistId,
+        title: playlistData.title,
+        author: playlistData.shortBylineText?.simpleText ?
+          new Text(playlistData.shortBylineText) :
+          new Author(playlistData.longBylineText),
+        contents: Parser.parseArray(playlistData.contents),
+        current_index: playlistData.currentIndex,
+        is_infinite: !!playlistData.isInfinite,
+        menu: Parser.parseItem(playlistData.menu, Menu),
+        endpoint: playlistData.endpoint,
+        isEditable: playlistData.isEditable,
+        totalVideosText: new Text(playlistData.totalVideosText),
+        totalVideos: playlistData.totalVideos
+      };
+    }
     this.pivot = Parser.parseItem(data.pivot, SectionList);
   }
 }

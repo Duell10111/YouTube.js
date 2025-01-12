@@ -1,4 +1,5 @@
 import { MediaInfo } from '../../core/mixins/index.js';
+import { Constants } from '../../utils/index.js';
 
 import type ChipCloud from '../classes/ChipCloud.js';
 import type CommentsEntryPointHeader from '../classes/comments/CommentsEntryPointHeader.js';
@@ -8,18 +9,18 @@ import type LiveChat from '../classes/LiveChat.js';
 import type MerchandiseShelf from '../classes/MerchandiseShelf.js';
 import PlayerOverlay from '../classes/PlayerOverlay.js';
 import type VideoSecondaryInfo from '../classes/VideoSecondaryInfo.js';
-import type NavigationEndpoint from '../classes/NavigationEndpoint.js';
+import NavigationEndpoint from '../classes/NavigationEndpoint.js';
 
 import type { Actions, ApiResponse } from '../../core/index.js';
 import type { ObservedArray, YTNode } from '../helpers.js';
 import SingleColumnWatchNextResults from '../classes/SingleColumnWatchNextResults.js';
 import VideoMetadata from '../classes/VideoMetadata.js';
+import { InnertubeError } from '../../utils/Utils.js';
 
 export default class VideoInfo extends MediaInfo {
   public primary_info?: VideoMetadata | null;
   public secondary_info?: VideoSecondaryInfo | null;
-  // public playlist?: TwoColumnWatchNextResults['playlist'];
-  // public game_info?;
+  public playlist?: SingleColumnWatchNextResults['playlist'];
   public merchandise?: MerchandiseShelf | null;
   public related_chip_cloud?: ChipCloud | null;
   public watch_next_feed?: ObservedArray<YTNode> | null;
@@ -55,7 +56,7 @@ export default class VideoInfo extends MediaInfo {
       }
     }
 
-    const single_col = next?.contents?.item().as(SingleColumnWatchNextResults);
+    const single_col = next?.contents?.item()?.as(SingleColumnWatchNextResults);
 
     const results = single_col?.results?.results?.contents;
     // const secondary_results = two_col?.secondary_results;
@@ -66,6 +67,10 @@ export default class VideoInfo extends MediaInfo {
       this.autoplay = single_col.autoplay.autoplay;
 
       this.player_overlays = next?.player_overlays?.item().as(PlayerOverlay);
+
+      if (single_col?.playlist) {
+        this.playlist = single_col.playlist;
+      }
     }
 
     if (results) {
@@ -96,10 +101,6 @@ export default class VideoInfo extends MediaInfo {
       this.basic_info.is_disliked = this.primary_info?.like_button?.like_status === 'DISLIKE'; // TODO: Adapt once value known
       this.basic_info.allow_ratings = this.primary_info?.allow_ratings;
 
-      // if (two_col?.playlist) {
-      //   this.playlist = two_col.playlist;
-      // }
-      //
       // this.watch_next_feed = secondary_results.firstOfType(ItemSection)?.contents || secondary_results;
       //
       // if (this.watch_next_feed && Array.isArray(this.watch_next_feed) && this.watch_next_feed.at(-1)?.is(ContinuationItem))
@@ -138,49 +139,42 @@ export default class VideoInfo extends MediaInfo {
   }
 
   /**
+   * Adds video to the watch history with specific point.
+   */
+  async addToWatchHistorySeconds(playedSeconds = 0): Promise<Response> {
+    return super.addToWatchHistory(Constants.CLIENTS.TV.NAME, Constants.CLIENTS.TV.VERSION, undefined, playedSeconds);
+  }
+
+  /**
    * Adds video to the watch history.
    */
   async addToWatchHistory(): Promise<Response> {
-    return super.addToWatchHistory();
+    return this.addToWatchHistorySeconds();
   }
 
-  // /**
-  //  * Likes the video.
-  //  */
-  // async like(): Promise<ApiResponse> {
-  //   const segmented_like_dislike_button_view = this.primary_info?.menu?.top_level_buttons.firstOfType(SegmentedLikeDislikeButtonView);
-  //
-  //   if (segmented_like_dislike_button_view) {
-  //     const button = segmented_like_dislike_button_view?.like_button?.toggle_button;
-  //
-  //     if (!button || !button.default_button || !segmented_like_dislike_button_view.like_button)
-  //       throw new InnertubeError('Like button not found', { video_id: this.basic_info.id });
-  //
-  //     const like_status = segmented_like_dislike_button_view.like_button.like_status_entity.like_status;
-  //
-  //     if (like_status === 'LIKE')
-  //       throw new InnertubeError('This video is already liked', { video_id: this.basic_info.id });
-  //
-  //     const endpoint = new NavigationEndpoint(button.default_button.on_tap.payload.commands.find((cmd: RawNode) => cmd.innertubeCommand));
-  //
-  //     return await endpoint.call(this.actions);
-  //   }
-  //
-  //   const segmented_like_dislike_button = this.primary_info?.menu?.top_level_buttons.firstOfType(SegmentedLikeDislikeButton);
-  //   const button = segmented_like_dislike_button?.like_button;
-  //
-  //   if (!button)
-  //     throw new InnertubeError('Like button not found', { video_id: this.basic_info.id });
-  //
-  //   if (!button.is(ToggleButton))
-  //     throw new InnertubeError('Like button is not a toggle button. This action is likely disabled for this video.', { video_id: this.basic_info.id });
-  //
-  //   if (button.is_toggled)
-  //     throw new InnertubeError('This video is already liked', { video_id: this.basic_info.id });
-  //
-  //   return await button.endpoint.call(this.actions);
-  // }
-  //
+  /**
+   * Likes the video.
+   */
+  async like(): Promise<ApiResponse> {
+    const videoId = this.primary_info?.video_id;
+    
+    if (!videoId) {
+      throw new InnertubeError('No videoId found!');
+    }
+    
+    if (!this.actions.session.logged_in)
+      throw new Error('You must be signed in to perform this operation.');
+
+    const like_endpoint = new NavigationEndpoint({
+      likeEndpoint: {
+        status: 'LIKE',
+        target: videoId
+      }
+    });
+
+    return like_endpoint.call(this.actions, { client: 'TV' });
+  }
+
   // /**
   //  * Dislikes the video.
   //  */
