@@ -205,15 +205,15 @@ export default class MediaInfo {
   /**
    * Adds video to the watch history.
    */
-  async addToWatchHistory(client_name = Constants.CLIENTS.WEB.NAME, client_version = Constants.CLIENTS.WEB.VERSION, replacement = 'https://www.'): Promise<Response> {
+  async addToWatchHistory(client_name = Constants.CLIENTS.WEB.NAME, client_version = Constants.CLIENTS.WEB.VERSION, replacement = 'https://www.', playedSeconds = 0): Promise<Response> {
     if (!this.#playback_tracking)
       throw new InnertubeError('Playback tracking not available');
 
     const url_params = {
       cpn: this.#cpn,
       fmt: 251,
-      rtn: 0,
-      rt: 0
+      rtn: playedSeconds,
+      rt: playedSeconds
     };
 
     const url = this.#playback_tracking.videostats_playback_url.replace('https://s.', replacement);
