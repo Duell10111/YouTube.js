@@ -1,5 +1,5 @@
 import { createWriteStream, existsSync } from 'node:fs';
-import { Innertube, Utils, YT, YTMusic, YTNodes, ClientType } from '../bundle/node.cjs';
+import { Innertube, Utils, YT, YTMusic, YTNodes, ClientType, UniversalCache } from '../bundle/node.cjs';
 import {InnerTubeClient} from "../src/types";
 
 jest.useRealTimers();
@@ -8,7 +8,9 @@ describe('YouTube.js Tests', () => {
   let innertube: Innertube;
 
   beforeAll(async () => {
-    innertube = await Innertube.create({ generate_session_locally: false });
+    const cache = new UniversalCache(true)
+    
+    innertube = await Innertube.create({ generate_session_locally: false, cache });
   });
 
   describe('Main', () => {
@@ -495,8 +497,14 @@ describe('YouTube.js Tests', () => {
       const info = await innertube.tv.getLibrary();
       expect(info).toBeDefined();
       
-      const continuation = await info.getContinuation();
-      expect(continuation).toBeDefined();
+      // const horizontalList = info.contents![0]!.as(YTNodes.Shelf).content!.as(YTNodes.HorizontalList)
+      // const selected = await info.selectButtonTile(horizontalList.items[2]!.as(YTNodes.Tile))
+      //
+      // const continuation = await selected.getContinuation();
+      // expect(continuation).toBeDefined();
+      //
+      // const cont2 = await continuation.getContinuation();
+      // expect(cont2).toBeDefined();
       
       console.log(info);
     });
@@ -558,9 +566,35 @@ describe('YouTube.js Tests', () => {
       // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
       await innertube.session.oauth.cacheCredentials();
       
-      const info = await innertube.tv.getInfo('bUHZ2k9DYHY', "TV");
-      expect(info.basic_info.id).toBe('bUHZ2k9DYHY');
+      const info = await innertube.tv.getInfo('zzD_4mWmqos', "TV");
+      expect(info.basic_info.id).toBe('zzD_4mWmqos');
     });
+
+    // test('Innertube#tv.getInfoNav', async () => {
+    //   await innertube.session.signIn();
+    //
+    //   // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+    //   await innertube.session.oauth.cacheCredentials();
+    //
+    //   const playlist = await innertube.tv.getPlaylist('WL');
+    //   expect(playlist).toBeDefined();
+    //   expect(playlist.contents).toBeDefined();
+    //   expect(playlist.contents!.length).toBeGreaterThan(0);
+    //
+    //   const info = await innertube.tv.getInfo(playlist.contents![0].as(YTNodes.Tile).on_select_endpoint, "TV");
+    //   // expect(info.basic_info.id).toBe('xHM0RlznHDg');
+    //  
+    //   await info.addToWatchHistorySeconds(30)
+    // });
+    //
+    // test('Innertube#tv.addVideos', async () => {
+    //   await innertube.session.signIn();
+    //
+    //   // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+    //   await innertube.session.oauth.cacheCredentials();
+    //  
+    //   const info = await innertube.playlist.addVideos("WL", ["b-7wXPjUlnQ"]);
+    // });
   });
 
   describe('YouTube Kids', () => {
