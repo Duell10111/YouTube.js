@@ -1,6 +1,5 @@
 import { createWriteStream, existsSync } from 'node:fs';
-import { Innertube, Utils, YT, YTMusic, YTNodes, ClientType } from '../bundle/node.cjs';
-import {InnerTubeClient} from "../src/types";
+import { Innertube, Utils, YT, YTMusic, YTNodes } from '../bundle/node.cjs';
 
 jest.useRealTimers();
 
@@ -8,7 +7,7 @@ describe('YouTube.js Tests', () => {
   let innertube: Innertube;
 
   beforeAll(async () => {
-    innertube = await Innertube.create({ generate_session_locally: false });
+    innertube = await Innertube.create({ generate_session_locally: true });
   });
 
   describe('Main', () => {
@@ -149,18 +148,6 @@ describe('YouTube.js Tests', () => {
       //   expect(incremental_continuation.contents).toBeDefined();
       //   expect(incremental_continuation.contents.contents?.length).toBeGreaterThan(0);
       // });
-    });
-
-    test('Innertube#getHomeFeedTV', async () => {
-      const client = "TV"
-      const home_feed = new YTNodes.NavigationEndpoint({ browseEndpoint: { 
-        browseId: 'default'
-      } });
-      const response = await home_feed.call(innertube.session.actions, {
-        client,
-        parse: true,
-      })
-      console.log(home_feed);
     });
 
     test('Innertube#getGuide', async () => {
@@ -487,57 +474,53 @@ describe('YouTube.js Tests', () => {
     });
 
     test('Innertube#tv.getLibrary', async () => {
-      await innertube.session.signIn();
-
-      // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
-      await innertube.session.oauth.cacheCredentials();
+      // await innertube.session.signIn();
+      //
+      // // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+      // await innertube.session.oauth.cacheCredentials();
 
       const info = await innertube.tv.getLibrary();
       expect(info).toBeDefined();
-      
+
       const continuation = await info.getContinuation();
       expect(continuation).toBeDefined();
-      
-      console.log(info);
     });
 
     test('Innertube#tv.getSubscriptionsFeed', async () => {
-      await innertube.session.signIn();
-
-      // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
-      await innertube.session.oauth.cacheCredentials();
+      // await innertube.session.signIn();
+      //
+      // // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+      // await innertube.session.oauth.cacheCredentials();
 
       const info = await innertube.tv.getSubscriptionsFeed();
       expect(info).toBeDefined();
       const continuation = await info.getContinuation();
       expect(continuation).toBeDefined();
-      console.log(info);
     });
     
     test('Innertube#tv.getPlaylists', async () => {
-      await innertube.session.signIn();
-
-      // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
-      await innertube.session.oauth.cacheCredentials();
+      // await innertube.session.signIn();
+      //
+      // // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+      // await innertube.session.oauth.cacheCredentials();
 
       const info = await innertube.tv.getPlaylists();
-      console.log(info);
+      expect(info).toBeDefined();
     });
 
     test('Innertube#tv.getMyYoutubeFeed', async () => {
-      await innertube.session.signIn();
-
-      // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
-      await innertube.session.oauth.cacheCredentials();
+      // await innertube.session.signIn();
+      //
+      // // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+      // await innertube.session.oauth.cacheCredentials();
 
       const myYoutubeFeed = await innertube.tv.getMyYoutubeFeed();
       expect(myYoutubeFeed).toBeDefined();
-      console.log(myYoutubeFeed);
       const tab = myYoutubeFeed.tabs![10];
       const otherTab = await myYoutubeFeed.selectTab(tab);
-      console.log(otherTab);
-      const cont = await otherTab.getContinuation();
-      console.log(cont)
+      expect(otherTab).toBeDefined();
+      const continuation = await otherTab.getContinuation();
+      expect(continuation).toBeDefined();
     });
 
     test('Innertube#tv.getPlaylist', async () => {
