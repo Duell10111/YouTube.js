@@ -3,9 +3,7 @@ import type {
   ReloadContinuationItemsCommand, Continuation, GridContinuation,
   ItemSectionContinuation, LiveChatContinuation, MusicPlaylistShelfContinuation, MusicShelfContinuation,
   PlaylistPanelContinuation, SectionListContinuation, ContinuationCommand, ShowMiniplayerCommand, NavigateAction,
-  PlaylistVideoListContinuation,
-  HorizontalListContinuation,
-  TvSurfaceContentContinuation
+  PlaylistVideoListContinuation, HorizontalListContinuation, TvSurfaceContentContinuation
 } from '../index.js';
 
 import type { CpnSource } from './RawResponse.js';

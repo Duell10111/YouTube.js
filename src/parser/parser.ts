@@ -20,7 +20,8 @@ import {
   PlaylistVideoListContinuation,
   ReloadContinuationItemsCommand,
   SectionListContinuation,
-  ShowMiniplayerCommand, TvSurfaceContentContinuation
+  ShowMiniplayerCommand, 
+  TvSurfaceContentContinuation
 } from './continuations.js';
 
 import AudioOnlyPlayability from './classes/AudioOnlyPlayability.js';
