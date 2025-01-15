@@ -536,10 +536,10 @@ describe('YouTube.js Tests', () => {
     });
 
     test('Innertube#tv.getInfo', async () => {
-      await innertube.session.signIn();
-
-      // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
-      await innertube.session.oauth.cacheCredentials();
+      // await innertube.session.signIn();
+      //
+      // // If you use this, the next call to signIn won't fire 'auth-pending' instead just 'auth'
+      // await innertube.session.oauth.cacheCredentials();
       
       const info = await innertube.tv.getInfo('bUHZ2k9DYHY', "TV");
       expect(info.basic_info.id).toBe('bUHZ2k9DYHY');

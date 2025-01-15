@@ -9,6 +9,7 @@ import MaybeHistoryEndpoint from './MaybeHistoryEndpoint.js';
 import Author from './misc/Author.js';
 import Menu from './menus/Menu.js';
 import type NavigationEndpoint from './NavigationEndpoint.js';
+import AutoplayEndpoint from './AutoplayEndpoint.js';
 
 export default class SingleColumnWatchNextResults extends YTNode {
   static type = 'SingleColumnWatchNextResults';
@@ -23,7 +24,7 @@ export default class SingleColumnWatchNextResults extends YTNode {
     autoplay: {
       sets: {
         mode: string,
-        autoplay_video_renderer: AutonavEndpoint | null,
+        autoplay_video_renderer: AutonavEndpoint | AutoplayEndpoint | null,
         next_video_renderer: MaybeHistoryEndpoint | null,
         previous_video_renderer: MaybeHistoryEndpoint | null
       }[],
@@ -61,7 +62,7 @@ export default class SingleColumnWatchNextResults extends YTNode {
       autoplay: {
         sets: data.autoplay.autoplay.sets.map((item: any) => ({
           mode: item.mode,
-          autoplay_video_renderer: Parser.parseItem(item.autoplayVideoRenderer, AutonavEndpoint),
+          autoplay_video_renderer: Parser.parseItem(item.autoplayVideoRenderer, [ AutoplayEndpoint, AutonavEndpoint ]),
           next_video_renderer: Parser.parseItem(item.nextVideoRenderer, MaybeHistoryEndpoint),
           previous_video_renderer: Parser.parseItem(item.previousVideoRenderer, MaybeHistoryEndpoint)
         })),

@@ -11,6 +11,8 @@ import VideoAttributesSectionView from './VideoAttributesSectionView.js';
 import HowThisWasMadeSectionView from './HowThisWasMadeSectionView.js';
 import ReelShelf from './ReelShelf.js';
 import VideoDescriptionChannelSection from './VideoDescriptionChannelSection.js';
+import VideoDescriptionCommentsSection from './VideoDescriptionCommentsSection.js';
+import MacroMarkersListView from './MacroMarkersListView.js';
 
 export default class StructuredDescriptionContent extends YTNode {
   static type = 'StructuredDescriptionContent';
@@ -19,7 +21,8 @@ export default class StructuredDescriptionContent extends YTNode {
     VideoDescriptionHeader | ExpandableVideoDescriptionBody | VideoDescriptionMusicSection |
     VideoDescriptionInfocardsSection | VideoDescriptionTranscriptSection |
     VideoDescriptionCourseSection | HorizontalCardList | ReelShelf | VideoAttributesSectionView |
-    HowThisWasMadeSectionView | VideoDescriptionChannelSection
+    HowThisWasMadeSectionView | VideoDescriptionChannelSection | VideoDescriptionCommentsSection |
+    MacroMarkersListView
   >;
 
   constructor(data: RawNode) {
@@ -28,7 +31,8 @@ export default class StructuredDescriptionContent extends YTNode {
       VideoDescriptionHeader, ExpandableVideoDescriptionBody, VideoDescriptionMusicSection,
       VideoDescriptionInfocardsSection, VideoDescriptionCourseSection, VideoDescriptionTranscriptSection,
       VideoDescriptionTranscriptSection, HorizontalCardList, ReelShelf, VideoAttributesSectionView,
-      HowThisWasMadeSectionView, VideoDescriptionChannelSection
+      HowThisWasMadeSectionView, VideoDescriptionChannelSection, VideoDescriptionCommentsSection,
+      MacroMarkersListView
     ]);
   }
 }
