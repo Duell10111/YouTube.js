@@ -20,8 +20,6 @@ export default class SubscriptionsFeed {
     this.#actions = actions;
     this.#page = Parser.parseResponse<IBrowseResponse>(response.data);
 
-    const page = this.#page;
-
     const grid = this.#page.contents_memo?.getType(Tab)?.first()?.content?.as(TvSurfaceContent)?.content?.as(Grid);
     if (grid) {
       this.contents = grid.contents;

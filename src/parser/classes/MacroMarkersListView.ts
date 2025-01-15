@@ -1,6 +1,6 @@
 import { YTNode } from '../helpers.js';
 import { type RawNode } from '../index.js';
-import NavigationEndpoint from "./NavigationEndpoint.js";
+import NavigationEndpoint from './NavigationEndpoint.js';
 
 export default class MacroMarkersListView extends YTNode {
   static type = 'MacroMarkersListView';

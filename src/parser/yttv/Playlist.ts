@@ -24,8 +24,6 @@ export default class Playlist {
   constructor(response: ApiResponse, actions: Actions) {
     this.#actions = actions;
     this.#page = Parser.parseResponse<IBrowseResponse>(response.data);
-    
-    const page = this.#page;
 
     this.#continuation = null;
     

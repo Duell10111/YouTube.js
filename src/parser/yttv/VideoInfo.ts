@@ -27,7 +27,7 @@ export default class VideoInfo extends MediaInfo {
   constructor(data: [ApiResponse, ApiResponse?], actions: Actions, cpn: string) {
     super(data, actions, cpn);
 
-    const [ info, next ] = this.page;
+    const next = this.page[1];
 
     if (this.streaming_data) {
       const default_audio_track = this.streaming_data.adaptive_formats.find((format) => format.audio_track?.audio_is_default);

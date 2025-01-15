@@ -21,8 +21,6 @@ export default class Library {
     this.#actions = actions;
     this.#page = Parser.parseResponse<IBrowseResponse>(response.data);
 
-    const page = this.#page;
-
     const tvSurfaceContent = this.#page.contents_memo?.getType(TvSurfaceContent)?.first();
     
     if (tvSurfaceContent) {

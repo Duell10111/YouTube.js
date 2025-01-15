@@ -21,8 +21,6 @@ export default class MyYoutubeFeed {
   constructor(response: ApiResponse, actions: Actions) {
     this.#actions = actions;
     this.#page = Parser.parseResponse<IBrowseResponse>(response.data);
-
-    const page = this.#page;
     
     const navSection = this.#page.contents_memo?.getType(TvSecondaryNavSection).first();
     

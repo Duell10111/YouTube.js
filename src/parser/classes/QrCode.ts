@@ -1,6 +1,6 @@
 import { YTNode } from '../helpers.js';
 import { type RawNode } from '../index.js';
-import Thumbnail from "./misc/Thumbnail.js";
+import Thumbnail from './misc/Thumbnail.js';
 
 export default class QrCode extends YTNode {
   static type = 'QrCode';
