@@ -31,8 +31,6 @@ export default class HomeFeed {
       this.#continuation = sectionListContinuation.continuation;
       this.sections = sectionListContinuation.contents ?? undefined;
     }
-    
-    // TODO: Get continue data from SectionListContinuation
   }
 
   /**
