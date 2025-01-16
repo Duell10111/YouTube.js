@@ -41,6 +41,7 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
+      "no-duplicate-imports": "error",
       'no-sparse-arrays': 'off',
       "no-template-curly-in-string": "error",
       "no-unreachable-loop": "error",
