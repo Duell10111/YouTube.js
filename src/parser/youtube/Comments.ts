@@ -1,4 +1,4 @@
-import { Parser } from '../index.js';
+import { Parser, ReloadContinuationItemsCommand } from '../index.js';
 import { InnertubeError } from '../../utils/Utils.js';
 import type { ObservedArray } from '../helpers.js';
 import { observe } from '../helpers.js';
@@ -7,7 +7,6 @@ import CommentsHeader from '../classes/comments/CommentsHeader.js';
 import CommentSimplebox from '../classes/comments/CommentSimplebox.js';
 import CommentThread from '../classes/comments/CommentThread.js';
 import ContinuationItem from '../classes/ContinuationItem.js';
-import { ReloadContinuationItemsCommand } from '../index.js';
 import AppendContinuationItemsAction from '../classes/actions/AppendContinuationItemsAction.js';
 import type { Actions, ApiResponse } from '../../core/index.js';
 import type { INextResponse } from '../types/index.js';

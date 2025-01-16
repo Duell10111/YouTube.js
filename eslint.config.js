@@ -1,10 +1,12 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
+import importPlugin from 'eslint-plugin-import';
 
 export default [
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  importPlugin.flatConfigs.recommended,
   {
     ignores: [
       "**/dist/",
@@ -41,7 +43,8 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
-      "no-duplicate-imports": "error",
+      "import/no-unresolved": "off",
+      "import/no-duplicates": "error",
       'no-sparse-arrays': 'off',
       "no-template-curly-in-string": "error",
       "no-unreachable-loop": "error",
