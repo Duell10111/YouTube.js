@@ -1,5 +1,4 @@
 import { MediaInfo } from '../../core/mixins/index.js';
-import { Constants } from '../../utils/index.js';
 
 import type ChipCloud from '../classes/ChipCloud.js';
 import ItemSection from '../classes/ItemSection.js';
@@ -13,6 +12,7 @@ import type { ObservedArray, YTNode } from '../helpers.js';
 import SingleColumnWatchNextResults from '../classes/SingleColumnWatchNextResults.js';
 import VideoMetadata from '../classes/VideoMetadata.js';
 import { InnertubeError } from '../../utils/Utils.js';
+import { CLIENTS } from '../../utils/Constants.js';
 
 export default class VideoInfo extends MediaInfo {
   public primary_info?: VideoMetadata | null;
@@ -78,8 +78,8 @@ export default class VideoInfo extends MediaInfo {
       } : null;
       
       this.basic_info.like_count = this.primary_info?.like_button?.like_count;
-      this.basic_info.is_liked = this.primary_info?.like_button?.like_status === 'LIKE'; // TODO: Adapt once value known
-      this.basic_info.is_disliked = this.primary_info?.like_button?.like_status === 'DISLIKE'; // TODO: Adapt once value known
+      this.basic_info.is_liked = this.primary_info?.like_button?.like_status === 'LIKE';
+      this.basic_info.is_disliked = this.primary_info?.like_button?.like_status === 'DISLIKE';
       this.basic_info.allow_ratings = this.primary_info?.allow_ratings;
     }
   }
@@ -95,7 +95,7 @@ export default class VideoInfo extends MediaInfo {
    * Updates video in the watch history with specific point (after being added to watch history).
    */
   async updateWatchTime(playedSeconds = 0): Promise<Response> {
-    return super.updateWatchHistoryTime(Constants.CLIENTS.TV.NAME, Constants.CLIENTS.TV.VERSION, undefined, playedSeconds);
+    return super.updateWatchHistoryTime(CLIENTS.TV.NAME, CLIENTS.TV.VERSION, undefined, playedSeconds);
   }
 
   /**

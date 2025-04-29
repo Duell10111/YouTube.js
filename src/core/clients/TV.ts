@@ -1,5 +1,4 @@
-import { HorizontalListContinuation, type IBrowseResponse } from '../../parser/index.js';
-import { Parser } from '../../parser/index.js';
+import { HorizontalListContinuation, type IBrowseResponse, Parser } from '../../parser/index.js';
 import type { Actions, Session } from '../index.js';
 import type { InnerTubeClient } from '../../types/index.js';
 import NavigationEndpoint from '../../parser/classes/NavigationEndpoint.js';
@@ -36,7 +35,7 @@ export default class TV {
     const watch_endpoint = new NavigationEndpoint({ watchEndpoint: payload });
     const watch_next_endpoint = new NavigationEndpoint({ watchNextEndpoint: payload });
 
-    const watch_response = watch_endpoint.call(this.#session.actions, {
+    const watch_response = watch_endpoint.call(this.#actions, {
       playbackContext: {
         contentPlaybackContext: {
           vis: 0,
@@ -51,7 +50,7 @@ export default class TV {
       client
     });
 
-    const watch_next_response = await watch_next_endpoint.call(this.#session.actions, {
+    const watch_next_response = await watch_next_endpoint.call(this.#actions, {
       client
     });
 
@@ -67,7 +66,7 @@ export default class TV {
     const home_feed = new NavigationEndpoint({ browseEndpoint: {
       browseId: 'default'
     } });
-    const response = await home_feed.call(this.#session.actions, {
+    const response = await home_feed.call(this.#actions, {
       client
     });
     return new HomeFeed(response, this.#actions);
@@ -75,7 +74,7 @@ export default class TV {
 
   async getLibrary(): Promise<Library> {
     const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FElibrary' } });
-    const response = await browse_endpoint.call(this.#session.actions, {
+    const response = await browse_endpoint.call(this.#actions, {
       client: 'TV'
     });
     return new Library(response, this.#actions);
@@ -83,7 +82,7 @@ export default class TV {
   
   async getSubscriptionsFeed(): Promise<SubscriptionsFeed> {
     const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEsubscriptions' } });
-    const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
+    const response = await browse_endpoint.call(this.#actions, { client: 'TV' });
     return new SubscriptionsFeed(response, this.#actions);
   }
 
@@ -92,7 +91,7 @@ export default class TV {
    */
   async getPlaylists(): Promise<PlaylistsFeed> {
     const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEplaylist_aggregation' } });
-    const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
+    const response = await browse_endpoint.call(this.#actions, { client: 'TV' });
     return new PlaylistsFeed(response, this.#actions);
   }
 
@@ -101,7 +100,7 @@ export default class TV {
    */
   async getMyYoutubeFeed(): Promise<MyYoutubeFeed> {
     const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: 'FEmy_youtube' } });
-    const response = await browse_endpoint.call(this.#session.actions, { client: 'TV' });
+    const response = await browse_endpoint.call(this.#actions, { client: 'TV' });
     return new MyYoutubeFeed(response, this.#actions);
   }
 
@@ -113,7 +112,7 @@ export default class TV {
     }
 
     const browse_endpoint = new NavigationEndpoint({ browseEndpoint: { browseId: id } });
-    const response = await browse_endpoint.call(this.#session.actions, {
+    const response = await browse_endpoint.call(this.#actions, {
       client: 'TV'
     });
 
