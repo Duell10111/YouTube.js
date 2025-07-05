@@ -5,7 +5,7 @@ import MusicQueue from './MusicQueue.js';
 import RichGrid from './RichGrid.js';
 import Message from './Message.js';
 import { YTNode } from '../helpers.js';
-import TvSurfaceContent from './TvSurfaceContent.js';
+import TvSurfaceContent from './tv/TvSurfaceContent.js';
 
 export default class Tab extends YTNode {
   static type = 'Tab';
