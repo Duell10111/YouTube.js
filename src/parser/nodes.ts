@@ -452,6 +452,7 @@ export { default as RichSection } from './classes/RichSection.js';
 export { default as RichShelf } from './classes/RichShelf.js';
 export { default as ScrollPane } from './classes/ScrollPane.js';
 export { default as ScrollPaneItemList } from './classes/ScrollPaneItemList.js';
+export { default as SearchBar } from './classes/SearchBar.js';
 export { default as SearchBox } from './classes/SearchBox.js';
 export { default as SearchFilter } from './classes/SearchFilter.js';
 export { default as SearchFilterGroup } from './classes/SearchFilterGroup.js';
