@@ -1,6 +1,11 @@
 import Session from './core/Session.js';
 
 import { Kids, Music, Studio, TV } from './core/clients/index.js';
+import {
+  resolvePlayableInfo,
+  type ResolvePlayableInfoOptions,
+  type ResolvedPlayableInfo
+} from './core/clients/PlaybackResolver.js';
 import { AccountManager, InteractionManager, PlaylistManager } from './core/managers/index.js';
 import { Feed, TabbedFeed } from './core/mixins/index.js';
 
@@ -101,6 +106,10 @@ export default class Innertube {
       client: options?.client
     };
 
+    if (options?.skip_auth) {
+      extra_payload.skip_auth = true;
+    }
+
     if (options?.po_token) {
       extra_payload.serviceIntegrityDimensions = {
         poToken: options.po_token
@@ -119,6 +128,39 @@ export default class Innertube {
     const cpn = generateRandomString(16);
 
     return new VideoInfo(response, session.actions, cpn);
+  }
+
+  /**
+   * Retrieves video info, trying several InnerTube clients until one returns
+   * streaming data that can actually be played.
+   *
+   * Individual clients break regularly and without warning — at the time of
+   * writing `TV` returns `UNPLAYABLE` for every video while `TV_SIMPLY` serves
+   * 4K, and `WEB` only hands out SABR-only formats. Walking a list instead of
+   * trusting one client is what keeps playback working.
+   *
+   * Clients that do not accept the session's credentials are requested without
+   * them automatically, since YouTube would answer those with HTTP 400.
+   *
+   * @param target - Video ID or navigation endpoint.
+   * @param options - Video info options plus the resolver's own options.
+   */
+  async getPlayableInfo(
+    target: string | NavigationEndpoint,
+    options?: Omit<GetVideoInfoOptions, 'client'> & ResolvePlayableInfoOptions<VideoInfo>
+  ): Promise<ResolvedPlayableInfo<VideoInfo>> {
+    throwIfMissing({ target });
+
+    const session = this.#session;
+
+    return resolvePlayableInfo<VideoInfo>(
+      (client) => this.getInfo(target, {
+        client,
+        po_token: options?.po_token,
+        skip_auth: options?.skip_auth ?? (session.logged_in && !Constants.AUTH_SUPPORTED_CLIENTS.includes(client))
+      }),
+      options
+    );
   }
 
   async getBasicInfo(video_id: string, options?: GetVideoInfoOptions): Promise<VideoInfo> {
@@ -143,8 +185,12 @@ export default class Innertube {
           signatureTimestamp: session.player?.signature_timestamp
         }
       },
-      client: options?.client  
+      client: options?.client
     };
+
+    if (options?.skip_auth) {
+      extra_payload.skip_auth = true;
+    }
 
     if (options?.po_token) {
       extra_payload.serviceIntegrityDimensions = {

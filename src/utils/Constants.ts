@@ -85,8 +85,19 @@ export const CLIENTS = {
   },
   TV: {
     NAME: 'TVHTML5',
-    VERSION: '7.20260311.12.00',
-    USER_AGENT: 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version'
+    VERSION: '7.20260901.15.00',
+    // See https://github.com/youtube/cobalt/blob/main/cobalt/browser/user_agent/user_agent_platform_info.cc
+    USER_AGENT: 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/25.lts.30.1034943-gold (unlike Gecko), Unknown_TV_Unknown_0/Unknown (Unknown, Unknown)'
+  },
+  /**
+   * Older TVHTML5 client version paired with an old Cobalt user agent.
+   * YouTube serves the non-`-tcl` player variant to it, which uses a simpler
+   * n/sig challenge. Useful as a fallback when the current TV client fails.
+   */
+  TV_DOWNGRADED: {
+    NAME: 'TVHTML5',
+    VERSION: '5.20260901',
+    USER_AGENT: 'Mozilla/5.0 (DirectFB; Linux x86_64) Cobalt/4.13031-qa (unlike Gecko) Starboard/1'
   },
   TV_SIMPLY: {
     NAME: 'TVHTML5_SIMPLY',
@@ -143,4 +154,11 @@ export const INNERTUBE_HEADERS_BASE = {
   'content-type': 'application/json'
 } as const;
 
-export const SUPPORTED_CLIENTS = [ 'IOS', 'WEB', 'MWEB', 'YTKIDS', 'YTMUSIC', 'ANDROID', 'ANDROID_VR', 'VISIONOS', 'YTSTUDIO_ANDROID', 'YTMUSIC_ANDROID', 'TV', 'TV_SIMPLY', 'TV_EMBEDDED', 'WEB_EMBEDDED', 'WEB_CREATOR' ];
+export const SUPPORTED_CLIENTS = [ 'IOS', 'WEB', 'MWEB', 'YTKIDS', 'YTMUSIC', 'ANDROID', 'ANDROID_VR', 'VISIONOS', 'YTSTUDIO_ANDROID', 'YTMUSIC_ANDROID', 'TV', 'TV_DOWNGRADED', 'TV_SIMPLY', 'TV_EMBEDDED', 'WEB_EMBEDDED', 'WEB_CREATOR' ];
+
+/**
+ * Clients that accept the session's authentication (OAuth bearer / SAPISID cookie).
+ * Sending credentials to any other client makes YouTube reject the request with
+ * HTTP 400, so requests for those must opt out via `skip_auth`.
+ */
+export const AUTH_SUPPORTED_CLIENTS = [ 'TV', 'TV_DOWNGRADED', 'TV_EMBEDDED', 'WEB', 'MWEB', 'WEB_EMBEDDED', 'WEB_CREATOR', 'YTMUSIC', 'YTKIDS' ];

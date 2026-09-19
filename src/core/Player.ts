@@ -4,7 +4,7 @@ import { Constants, BinarySerializer, Log } from '../utils/index.js';
 import {
   getRandomUserAgent,
   getStringBetweenStrings,
-  getNsigProcessorFn,
+  getNsigProcessorFnBatch,
   Platform,
   PlayerError
 } from '../utils/Utils.js';
@@ -35,6 +35,17 @@ interface PlayerInitializationOptions {
 /**
  * Represents YouTube's player script. This is required to decipher signatures.
  */
+interface NsigEvalArgs {
+  sig?: string | null;
+  n?: string | null;
+  sp?: string | null;
+}
+
+interface PreparedUrl {
+  url_components: URL;
+  eval_args?: NsigEvalArgs;
+}
+
 export default class Player {
   public po_token?: string;
 
@@ -127,7 +138,50 @@ export default class Player {
   }
 
   async decipher(url?: string, signature_cipher?: string, cipher?: string, this_response_nsig_cache?: Map<string, string>): Promise<string> {
-    url = url || signature_cipher || cipher;
+    const [ result ] = await this.decipherMany([ { url, signature_cipher, cipher } ], this_response_nsig_cache);
+    return result;
+  }
+
+  /**
+   * Deciphers several URLs with a single call into the JavaScript runtime.
+   *
+   * Generating a manifest means deciphering every format of a video, and each
+   * call into the runtime is expensive — on React Native that dominates the cost
+   * of building a manifest. This batches all outstanding n/sig challenges of the
+   * given URLs into one evaluation.
+   *
+   * @param inputs - URLs to decipher, in the shape a {@link Misc.Format} exposes them.
+   * @param this_response_nsig_cache - Shared nsig cache, usually one per player response.
+   */
+  async decipherMany(
+    inputs: { url?: string, signature_cipher?: string, cipher?: string }[],
+    this_response_nsig_cache?: Map<string, string>
+  ): Promise<string[]> {
+    const prepared = inputs.map((input) => this.#prepare(input, this_response_nsig_cache));
+
+    const pending = prepared.filter((item) => item.eval_args);
+
+    if (pending.length && this.data) {
+      const results = await this.#evaluateBatch(pending.map((item) => item.eval_args as NsigEvalArgs));
+
+      for (let i = 0; i < pending.length; i++) {
+        this.#applyEvalResult(pending[i], results[i], this_response_nsig_cache);
+      }
+    }
+
+    return prepared.map((item) => this.#finalize(item.url_components));
+  }
+
+  /**
+   * Splits a URL into its components and works out which n/sig challenges still
+   * need the player script. Cache hits are applied right away.
+   */
+  #prepare(
+    input: { url?: string, signature_cipher?: string, cipher?: string },
+    this_response_nsig_cache?: Map<string, string>
+  ): PreparedUrl {
+    const { signature_cipher, cipher } = input;
+    const url = input.url || signature_cipher || cipher;
 
     if (!url)
       throw new PlayerError('No valid URL to decipher');
@@ -139,8 +193,10 @@ export default class Player {
     const s = args.get('s');
     const sp = args.get('sp');
 
+    const prepared: PreparedUrl = { url_components };
+
     if (this.data && ((signature_cipher || cipher) || n)) {
-      const eval_args: { sig?: string | null; n?: string | null; sp?: string | null } = {};
+      const eval_args: NsigEvalArgs = {};
 
       if (signature_cipher || cipher) {
         eval_args.sig = s;
@@ -148,59 +204,87 @@ export default class Player {
       }
 
       if (n) {
-        if (this_response_nsig_cache?.has(n)) {
-          const nsig = this_response_nsig_cache.get(n) as string;
-          url_components.searchParams.set('n', nsig);
+        const cached = this_response_nsig_cache?.get(n);
+        if (cached !== undefined) {
+          url_components.searchParams.set('n', cached);
         } else {
           eval_args.n = n;
         }
       }
 
       if (Object.keys(eval_args).length > 0) {
-        // Shallow copy to avoid mutating the original data.
-        const data = { ...this.data };
-
-        data.output = `${data.output}\n${getNsigProcessorFn(eval_args.n, eval_args.sp, eval_args.sig)}`;
-
-        const result = await Platform.shim.eval(data, eval_args) as Record<string, unknown>;
-
-        if (typeof result !== 'object' || result === null) {
-          throw new PlayerError('Got invalid result from player script evaluation.');
-        }
-
-        if (typeof eval_args.sig === 'string') {
-          const signatureResult = result.sig;
-
-          Log.info(TAG, `Transformed signature from ${s} to ${signatureResult}.`);
-
-          if (typeof signatureResult !== 'string')
-            throw new PlayerError('Got invalid signature from player script evaluation.');
-
-          if (sp) {
-            url_components.searchParams.set(sp, signatureResult);
-          } else {
-            url_components.searchParams.set('signature', signatureResult);
-          }
-        }
-
-        if (typeof eval_args.n === 'string') {
-          const nResult = result.n;
-          Log.info(TAG, `Transformed n from ${n} to ${nResult}.`);
-
-          if (typeof nResult !== 'string')
-            throw new PlayerError('Failed to decipher nsig');
-
-          if (nResult.startsWith('enhanced_except_')) {
-            Log.warn(TAG, `Decipher script returned an error (n=${n}):`, nResult);
-          } else if (this_response_nsig_cache) {
-            this_response_nsig_cache.set(n as string, nResult);
-          }
-
-          url_components.searchParams.set('n', nResult);
-        }
+        prepared.eval_args = eval_args;
       }
     }
 
+    return prepared;
+  }
+
+  /** Runs one evaluation for all outstanding challenges and returns a result per input. */
+  async #evaluateBatch(eval_args: NsigEvalArgs[]): Promise<Record<string, unknown>[]> {
+    // Shallow copy to avoid mutating the original data.
+    const data = { ...this.data } as BuildScriptResult;
+
+    // The processor takes the cipher's `s` parameter, which is carried as `sig` here.
+    data.output = `${data.output}\n${getNsigProcessorFnBatch(
+      eval_args.map((args) => ({ n: args.n, sp: args.sp, s: args.sig }))
+    )}`;
+
+    const result = await Platform.shim.eval(data, {}) as unknown;
+
+    if (!Array.isArray(result) || result.length !== eval_args.length) {
+      throw new PlayerError('Got invalid result from player script evaluation.');
+    }
+
+    return result as Record<string, unknown>[];
+  }
+
+  #applyEvalResult(
+    prepared: PreparedUrl,
+    result: Record<string, unknown> | undefined,
+    this_response_nsig_cache?: Map<string, string>
+  ): void {
+    const eval_args = prepared.eval_args as NsigEvalArgs;
+    const url_components = prepared.url_components;
+
+    if (typeof result !== 'object' || result === null) {
+      throw new PlayerError('Got invalid result from player script evaluation.');
+    }
+
+    if (typeof eval_args.sig === 'string') {
+      const signatureResult = result.sig;
+
+      Log.info(TAG, `Transformed signature from ${eval_args.sig} to ${signatureResult}.`);
+
+      if (typeof signatureResult !== 'string')
+        throw new PlayerError('Got invalid signature from player script evaluation.');
+
+      if (eval_args.sp) {
+        url_components.searchParams.set(eval_args.sp, signatureResult);
+      } else {
+        url_components.searchParams.set('signature', signatureResult);
+      }
+    }
+
+    if (typeof eval_args.n === 'string') {
+      const nResult = result.n;
+      Log.info(TAG, `Transformed n from ${eval_args.n} to ${nResult}.`);
+
+      if (typeof nResult !== 'string')
+        throw new PlayerError('Failed to decipher nsig');
+
+      if (nResult.startsWith('enhanced_except_')) {
+        Log.warn(TAG, `Decipher script returned an error (n=${eval_args.n}):`, nResult);
+      } else if (this_response_nsig_cache) {
+        this_response_nsig_cache.set(eval_args.n, nResult);
+      }
+
+      url_components.searchParams.set('n', nResult);
+    }
+  }
+
+  /** Adds the PoToken and client version params every streaming URL needs. */
+  #finalize(url_components: URL): string {
     // @NOTE: SABR requests should include the PoToken (not base64d, but as bytes!) in the payload.
     if (url_components.searchParams.get('sabr') !== '1' && this.po_token)
       url_components.searchParams.set('pot', this.po_token);
@@ -238,7 +322,7 @@ export default class Player {
 
     Log.info(TAG, `Deciphered URL: ${result}`);
 
-    return url_components.toString();
+    return result;
   }
 
   static async fromCache(cache: ICache, player_id: string): Promise<Player | null> {
