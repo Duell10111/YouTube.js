@@ -20,6 +20,10 @@ interface ProcessedJsonPayload {
   clientVersion?: string;
   clientNameId?: string;
   adjustedClientName: string;
+  /** User agent from the adjusted context, needed where the client name alone is ambiguous. */
+  adjustedUserAgent?: string;
+  /** Request opted out of sending the session's credentials. */
+  skipAuth: boolean;
 }
 
 export default class HTTPClient {
@@ -68,6 +72,7 @@ export default class HTTPClient {
 
     let request_body = body;
     let is_web_kids = false;
+    let skip_auth = false;
 
     const is_innertube_req =
       baseURL === innertube_url ||
@@ -80,11 +85,14 @@ export default class HTTPClient {
         isWebKids: processedIsWebKids,
         clientVersion: processedClientVersion,
         clientNameId: processedClientNameId,
-        adjustedClientName
+        adjustedClientName,
+        adjustedUserAgent,
+        skipAuth: processedSkipAuth
       } = this.#processJsonPayload(body, session);
 
       request_body = newBody;
       is_web_kids = processedIsWebKids;
+      skip_auth = processedSkipAuth;
 
       if (processedClientVersion) {
         request_headers.set('X-Youtube-Client-Version', processedClientVersion);
@@ -102,6 +110,11 @@ export default class HTTPClient {
         request_headers.set('User-Agent', Constants.CLIENTS.ANDROID_VR.USER_AGENT);
       } else if (adjustedClientName === Constants.CLIENTS.VISIONOS.NAME) {
         request_headers.set('User-Agent', Constants.CLIENTS.VISIONOS.USER_AGENT);
+      } else if (adjustedClientName.startsWith('TVHTML5') && adjustedUserAgent) {
+        // TV and TV_DOWNGRADED share a client name but not a user agent, and
+        // YouTube picks the player variant based on it — so send the one the
+        // adjusted context carries.
+        request_headers.set('User-Agent', adjustedUserAgent);
       }
     } else if (content_type === 'application/x-protobuf') {
       // Assume it is always an Android request.
@@ -112,8 +125,11 @@ export default class HTTPClient {
       }
     }
 
-    // Authenticate (NOTE: YouTube Kids does not support regular bearer tokens)
-    if (session.logged_in && is_innertube_req && !is_web_kids) {
+    // Authenticate (NOTE: YouTube Kids does not support regular bearer tokens).
+    // `skip_auth` exists because clients that do not accept the session's
+    // credentials answer an authenticated request with HTTP 400 — see
+    // AUTH_SUPPORTED_CLIENTS.
+    if (session.logged_in && is_innertube_req && !is_web_kids && !skip_auth) {
       const oauth = session.oauth;
 
       if (oauth.oauth2_tokens) {
@@ -173,6 +189,9 @@ export default class HTTPClient {
     const clientNameFromAdjustedContext = new_payload.context.client.clientName as keyof typeof Constants.CLIENT_NAME_IDS;
     const clientNameId = Constants.CLIENT_NAME_IDS[clientNameFromAdjustedContext];
 
+    // Not part of the InnerTube payload — internal request flags.
+    const skipAuth = !!new_payload.skip_auth;
+    delete new_payload.skip_auth;
     delete new_payload.client;
 
     const isWebKids = new_payload.context.client.clientName === Constants.CLIENTS.WEB_KIDS.NAME;
@@ -182,7 +201,9 @@ export default class HTTPClient {
       isWebKids,
       clientVersion,
       clientNameId,
-      adjustedClientName: new_payload.context.client.clientName
+      adjustedClientName: new_payload.context.client.clientName,
+      adjustedUserAgent: new_payload.context.client.userAgent,
+      skipAuth
     };
   }
 
@@ -299,6 +320,17 @@ export default class HTTPClient {
         ctx.client.browserName = 'Cobalt';
         ctx.client.tvAppInfo = {
           appQuality: 'TV_APP_QUALITY_FULL_ANIMATION',
+          zylonLeftNav: true
+        };
+        delete ctx.client.browserVersion;
+        break;
+      case 'TV_DOWNGRADED':
+        ctx.client.clientVersion = Constants.CLIENTS.TV_DOWNGRADED.VERSION;
+        ctx.client.clientName = Constants.CLIENTS.TV_DOWNGRADED.NAME;
+        ctx.client.userAgent = Constants.CLIENTS.TV_DOWNGRADED.USER_AGENT;
+        ctx.client.browserName = 'Cobalt';
+        ctx.client.tvAppInfo = {
+          appQuality: 'TV_APP_QUALITY_LIMITED_ANIMATION',
           zylonLeftNav: true
         };
         delete ctx.client.browserVersion;

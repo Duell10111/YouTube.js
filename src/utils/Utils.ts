@@ -271,7 +271,22 @@ export function getCookie(cookies: string, name: string, matchWholeName = false)
   return match ? match[2] : undefined;
 }
 
-export function getNsigProcessorFn(n?: string | null, sp?: string | null, s?: string | null) {
+/**
+ * Builds the script that turns n/sig challenges into their solutions.
+ *
+ * The emitted script declares `process()` once and returns an array with one
+ * result object per entry, so a whole manifest's worth of formats can be solved
+ * in a single evaluation. Runtimes where entering the JavaScript engine is
+ * expensive (React Native in particular) depend on that.
+ *
+ * @param items - One entry per URL; `n`, `sp` and `s` as extracted from it.
+ * @returns Script body returning `{ sig?: string, n?: string }[]`.
+ */
+export function getNsigProcessorFnBatch(items: { n?: string | null, sp?: string | null, s?: string | null }[]) {
+  const calls = items
+    .map((item) => `process(${JSON.stringify(item.n || '')}, ${JSON.stringify(item.sp || '')}, ${JSON.stringify(item.s || '')})`)
+    .join(',\n  ');
+
   return `function process(n = "", sp = "", s = "") {
   const mockStreamingURL = "https://ytjs.googlevideo.com/videoplayback?expire=1234567890&"+"n="+encodeURIComponent(n);
   const urlCtorFunction = exportedVars.nsigFunction || (() => { throw new Error('No n/sig decipher function extracted') });
@@ -298,5 +313,18 @@ export function getNsigProcessorFn(n?: string | null, sp?: string | null, s?: st
   };
 }
 
-return process("${n || ''}", "${sp || ''}", "${s || ''}");`;
+return [
+  ${calls}
+];`;
+}
+
+/**
+ * Single-URL variant of {@link getNsigProcessorFnBatch}, kept for compatibility
+ * with custom JavaScript runtimes that expect the previous shape.
+ *
+ * @deprecated Use {@link getNsigProcessorFnBatch}.
+ */
+export function getNsigProcessorFn(n?: string | null, sp?: string | null, s?: string | null) {
+  return `${getNsigProcessorFnBatch([ { n, sp, s } ]).replace(/return \[[\s\S]*\];$/, '')}
+return process(${JSON.stringify(n || '')}, ${JSON.stringify(sp || '')}, ${JSON.stringify(s || '')});`;
 }
