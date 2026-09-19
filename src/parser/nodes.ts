@@ -83,6 +83,7 @@ export { default as AddToPlaylistCommand } from './classes/commands/AddToPlaylis
 export { default as CommandExecutorCommand } from './classes/commands/CommandExecutorCommand.js';
 export { default as ContinuationCommand } from './classes/commands/ContinuationCommand.js';
 export { default as GetKidsBlocklistPickerCommand } from './classes/commands/GetKidsBlocklistPickerCommand.js';
+export { default as PlayerErrorCommand } from './classes/commands/PlayerErrorCommand.js';
 export { default as RunAttestationCommand } from './classes/commands/RunAttestationCommand.js';
 export { default as ShowDialogCommand } from './classes/commands/ShowDialogCommand.js';
 export { default as ShowSheetCommand } from './classes/commands/ShowSheetCommand.js';
@@ -381,6 +382,7 @@ export { default as OpenOnePickAddVideoModalCommand } from './classes/OpenOnePic
 export { default as OverlayMessage } from './classes/OverlayMessage.js';
 export { default as OverlayPanel } from './classes/OverlayPanel.js';
 export { default as OverlayPanelHeader } from './classes/OverlayPanelHeader.js';
+export { default as OverlayPanelItemList } from './classes/OverlayPanelItemList.js';
 export { default as OverlaySection } from './classes/OverlaySection.js';
 export { default as OverlayTwoPanel } from './classes/OverlayTwoPanel.js';
 export { default as PageHeader } from './classes/PageHeader.js';
@@ -450,6 +452,7 @@ export { default as RichMetadata } from './classes/RichMetadata.js';
 export { default as RichMetadataRow } from './classes/RichMetadataRow.js';
 export { default as RichSection } from './classes/RichSection.js';
 export { default as RichShelf } from './classes/RichShelf.js';
+export { default as RichTextListView } from './classes/RichTextListView.js';
 export { default as ScrollPane } from './classes/ScrollPane.js';
 export { default as ScrollPaneItemList } from './classes/ScrollPaneItemList.js';
 export { default as SearchBar } from './classes/SearchBar.js';
