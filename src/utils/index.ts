@@ -16,4 +16,5 @@ export * as Log from './Log.js';
 export * as BinarySerializer from './BinarySerializer.js';
 
 export * as ProtoUtils from './ProtoUtils.js';
+export * as Mp4SidxParser from './Mp4SidxParser.js';
 export * from './javascript/index.js';

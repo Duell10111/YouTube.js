@@ -21,6 +21,8 @@ import type { Actions, ApiResponse } from '../index.js';
 import type { DownloadOptions, FormatFilter, FormatOptions, URLTransformer } from '../../types/index.js';
 import type Format from '../../parser/classes/misc/Format.js';
 import type { DashOptions } from '../../types/DashOptions.js';
+import type { HlsOptions } from '../../types/HlsOptions.js';
+import type { HlsManifest } from '../../utils/HlsManifest.js';
 import type { ObservedArray } from '../../parser/helpers.js';
 
 import type CardCollection from '../../parser/classes/CardCollection.js';
@@ -133,6 +135,52 @@ export default class MediaInfo {
       this.#actions.session.player,
       this.#actions,
       storyboards,
+      captions,
+      manifest_options
+    );
+  }
+
+  /**
+   * Generates an HLS presentation from the streaming data.
+   *
+   * YouTube's own manifest (`streaming_data.hls_manifest_url`) tops out at avc1
+   * 1080p with the audio muxed in. This one is built from the adaptive formats
+   * instead, which reach 2160p and keep the audio tracks separate — at the cost
+   * of one index request per rendition before playback can start.
+   *
+   * Byte-range delivery of adaptive formats is capped for most InnerTube
+   * clients; see `toHLS` in `utils/HlsManifest.ts` for which ones are not.
+   *
+   * @returns The master playlist plus one media playlist per rendition. They
+   *   reference each other by file name, so write them into one directory.
+   */
+  async toHLS(options: {
+    url_transformer?: URLTransformer;
+    format_filter?: FormatFilter;
+    manifest_options?: HlsOptions;
+  } = {}): Promise<HlsManifest> {
+    const player_response = this.#page[0];
+
+    if (player_response.video_details?.is_live) {
+      throw new InnertubeError('Generating HLS manifests for live videos is not supported. Please use the HLS manifest provided by YouTube in `streaming_data.hls_manifest_url` instead.');
+    }
+
+    const manifest_options = options.manifest_options || {};
+
+    let captions;
+
+    if (typeof manifest_options.captions_format === 'string' && player_response.captions?.caption_tracks) {
+      captions = player_response.captions.caption_tracks;
+    }
+
+    return FormatUtils.toHLS(
+      this.streaming_data,
+      player_response.video_details?.is_post_live_dvr,
+      options.url_transformer,
+      options.format_filter,
+      this.#cpn,
+      this.#actions.session.player,
+      this.#actions,
       captions,
       manifest_options
     );

@@ -209,3 +209,5 @@ export function chooseFormat(options: FormatOptions, streaming_data?: IStreaming
 }
 
 export { toDash } from './DashManifest.js';
+export { toHLS } from './HlsManifest.js';
+export type { HlsManifest, HlsMediaPlaylist } from './HlsManifest.js';
