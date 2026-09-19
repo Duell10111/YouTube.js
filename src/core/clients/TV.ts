@@ -12,6 +12,11 @@ import PlaylistsFeed from '../../parser/yttv/PlaylistsFeed.js';
 import HomeFeed from '../../parser/yttv/HomeFeed.js';
 import VideoInfo from '../../parser/yttv/VideoInfo.js';
 import MyYoutubeFeed from '../../parser/yttv/MyYoutubeFeed.js';
+import {
+  resolvePlayableInfo,
+  type ResolvePlayableInfoOptions,
+  type ResolvedPlayableInfo
+} from './PlaybackResolver.js';
 
 export default class TV {
   #session: Session;
@@ -22,7 +27,32 @@ export default class TV {
     this.#actions = session.actions;
   }
 
-  async getInfo(target: string | NavigationEndpoint, options?: Omit<GetVideoInfoOptions, 'client'>): Promise<VideoInfo> {
+  /**
+   * Retrieves video info using the TV interface.
+   *
+   * `/player` and `/next` are separate requests and may come from different
+   * clients. That matters because the `TV` client currently answers `/player`
+   * with `UNPLAYABLE` for every video — with or without authentication — while
+   * its `/next` response is complete (watch next feed, transport controls).
+   * Passing `player_client` keeps the TV metadata and takes the streams from a
+   * client that still serves them.
+   *
+   * @param target - Video ID or navigation endpoint.
+   * @param options - Video info options. `player_client` applies to `/player` only.
+   */
+  async getInfo(
+    target: string | NavigationEndpoint,
+    options?: Omit<GetVideoInfoOptions, 'client'> & {
+      /** Client for the `/player` request. Defaults to `TV`. */
+      player_client?: InnerTubeClient;
+      /**
+       * Whether to send the session's credentials with the `/player` request.
+       * Defaults to `false` whenever `player_client` is set, because clients other
+       * than TV answer authenticated requests with HTTP 400.
+       */
+      player_skip_auth?: boolean;
+    }
+  ): Promise<VideoInfo> {
     throwIfMissing({ target });
 
     const payload = {
@@ -46,8 +76,13 @@ export default class TV {
           signatureTimestamp: this.#session.player?.signature_timestamp
         }
       },
-      client: 'TV'
+      client: options?.player_client ?? 'TV'
     };
+
+    // Credentials only ever reach the TV client; anything else rejects them.
+    if (options?.player_skip_auth ?? (!!options?.player_client && options.player_client !== 'TV')) {
+      extra_payload.skip_auth = true;
+    }
 
     if (options?.po_token) {
       extra_payload.serviceIntegrityDimensions = {
@@ -61,6 +96,8 @@ export default class TV {
 
     const watch_response = watch_endpoint.call(this.#actions, extra_payload);
 
+    // Stays on the TV client (and stays authenticated): this is the response the
+    // TV interface is built from.
     const watch_next_response = await watch_next_endpoint.call(this.#actions, { client: 'TV' });
 
     const response = await Promise.all([ watch_response, watch_next_response ]);
@@ -68,6 +105,33 @@ export default class TV {
     const cpn = generateRandomString(16);
 
     return new VideoInfo(response, this.#actions, cpn);
+  }
+
+  /**
+   * Retrieves video info using the TV interface, trying several clients for the
+   * `/player` request until one returns playable streaming data.
+   *
+   * This is the combination the TV interface needs: metadata and watch next data
+   * from the (authenticated) TV client, streams from whichever client currently
+   * serves them.
+   *
+   * @param target - Video ID or navigation endpoint.
+   * @param options - Video info options plus the resolver's own options.
+   */
+  async getPlayableInfo(
+    target: string | NavigationEndpoint,
+    options?: Omit<GetVideoInfoOptions, 'client'> & ResolvePlayableInfoOptions<VideoInfo>
+  ): Promise<ResolvedPlayableInfo<VideoInfo>> {
+    throwIfMissing({ target });
+
+    return resolvePlayableInfo<VideoInfo>(
+      (client) => this.getInfo(target, {
+        player_client: client,
+        po_token: options?.po_token,
+        player_skip_auth: options?.skip_auth
+      }),
+      options
+    );
   }
 
   async getHomeFeed(): Promise<HomeFeed> {
