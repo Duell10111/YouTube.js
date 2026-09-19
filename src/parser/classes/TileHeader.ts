@@ -6,18 +6,19 @@ import TileMetadata from './TileMetadata.js';
 import ThumbnailOverlayIcon from './ThumbnailOverlayIcon.js';
 import ThumbnailOverlayResumePlayback from './ThumbnailOverlayResumePlayback.js';
 import ThumbnailOverlayStackingEffect from './ThumbnailOverlayStackingEffect.js';
+import ThumbnailOverlayBadgeView from './ThumbnailOverlayBadgeView.js';
 
 export default class TileHeader extends YTNode {
   static type = 'TileHeader';
 
   thumbnail: Thumbnail[];
-  thumbnail_overlays: ObservedArray<ThumbnailOverlayTimeStatus | ThumbnailOverlayIcon | ThumbnailOverlayResumePlayback | ThumbnailOverlayStackingEffect | TileMetadata>;
+  thumbnail_overlays: ObservedArray<ThumbnailOverlayTimeStatus | ThumbnailOverlayIcon | ThumbnailOverlayResumePlayback | ThumbnailOverlayStackingEffect | ThumbnailOverlayBadgeView | TileMetadata>;
 
   constructor(data: RawNode) {
     super();
     this.thumbnail = Thumbnail.fromResponse(data.thumbnail);
     this.thumbnail_overlays = Parser.parseArray(data.thumbnailOverlays, [ 
-      ThumbnailOverlayTimeStatus, ThumbnailOverlayIcon, ThumbnailOverlayResumePlayback, ThumbnailOverlayStackingEffect, TileMetadata
+      ThumbnailOverlayTimeStatus, ThumbnailOverlayIcon, ThumbnailOverlayResumePlayback, ThumbnailOverlayStackingEffect, ThumbnailOverlayBadgeView, TileMetadata
     ]);
   }
 }

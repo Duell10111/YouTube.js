@@ -18,6 +18,8 @@ import ItemSection from './ItemSection.js';
 import VideoTitleHeaderView from './VideoTitleHeaderView.js';
 import VideoDescriptionGamingSection from './VideoDescriptionGamingSection.js';
 import CourseProgressView from './CourseProgressView.js';
+import VideoDescriptionChannelSection from './VideoDescriptionChannelSection.js';
+import VideoDescriptionCommentsSection from './VideoDescriptionCommentsSection.js';
 
 export default class StructuredDescriptionContent extends YTNode {
   static type = 'StructuredDescriptionContent';
@@ -25,9 +27,10 @@ export default class StructuredDescriptionContent extends YTNode {
   public items: ObservedArray<
     VideoTitleHeaderView | VideoDescriptionHeader | VideoDescriptionGamingSection | ExpandableVideoDescriptionBody |
     VideoDescriptionMusicSection | VideoDescriptionInfocardsSection | VideoDescriptionTranscriptSection |
-    VideoDescriptionCourseSection | VideoDescriptionYouchatSectionView | HorizontalCardList | ReelShelf |
-    VideoAttributesSectionView | HowThisWasMadeSectionView | ExpandableMetadata | MerchandiseShelf |
-    HypeFanCreditsSectionView | ItemSection | CourseProgressView
+    VideoDescriptionCourseSection | VideoDescriptionChannelSection | VideoDescriptionCommentsSection |
+    VideoDescriptionYouchatSectionView | HorizontalCardList | ReelShelf | VideoAttributesSectionView |
+    HowThisWasMadeSectionView | ExpandableMetadata | MerchandiseShelf | HypeFanCreditsSectionView |
+    ItemSection | CourseProgressView
   >;
 
   constructor(data: RawNode) {
@@ -35,9 +38,10 @@ export default class StructuredDescriptionContent extends YTNode {
     this.items = Parser.parseArray(data.items, [
       VideoTitleHeaderView, VideoDescriptionHeader, VideoDescriptionGamingSection, ExpandableVideoDescriptionBody,
       VideoDescriptionMusicSection, VideoDescriptionInfocardsSection, VideoDescriptionCourseSection,
-      VideoDescriptionTranscriptSection, VideoDescriptionYouchatSectionView, HorizontalCardList, ReelShelf,
-      VideoAttributesSectionView, HowThisWasMadeSectionView, ExpandableMetadata, MerchandiseShelf,
-      HypeFanCreditsSectionView, ItemSection, CourseProgressView
+      VideoDescriptionTranscriptSection, VideoDescriptionChannelSection, VideoDescriptionCommentsSection,
+      VideoDescriptionYouchatSectionView, HorizontalCardList, ReelShelf, VideoAttributesSectionView,
+      HowThisWasMadeSectionView, ExpandableMetadata, MerchandiseShelf, HypeFanCreditsSectionView,
+      ItemSection, CourseProgressView
     ]);
   }
 }
