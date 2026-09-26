@@ -16,6 +16,8 @@ import HypeFanCreditsSectionView from './HypeFanCreditsSectionView.js';
 import VideoDescriptionYouchatSectionView from './VideoDescriptionYouchatSectionView.js';
 import VideoDescriptionChannelSection from './VideoDescriptionChannelSection.js';
 import VideoDescriptionCommentsSection from './VideoDescriptionCommentsSection.js';
+import ItemSection from './ItemSection.js';
+import MacroMarkersListView from './MacroMarkersListView.js';
 
 export default class StructuredDescriptionContent extends YTNode {
   static type = 'StructuredDescriptionContent';
@@ -25,7 +27,8 @@ export default class StructuredDescriptionContent extends YTNode {
     VideoDescriptionInfocardsSection | VideoDescriptionTranscriptSection | VideoDescriptionCourseSection |
     VideoDescriptionChannelSection | VideoDescriptionCommentsSection | VideoDescriptionYouchatSectionView |
     HorizontalCardList | ReelShelf | VideoAttributesSectionView |
-    HowThisWasMadeSectionView | ExpandableMetadata | MerchandiseShelf | HypeFanCreditsSectionView
+    HowThisWasMadeSectionView | ExpandableMetadata | MerchandiseShelf | HypeFanCreditsSectionView |
+    ItemSection | MacroMarkersListView
   >;
 
   constructor(data: RawNode) {
@@ -35,7 +38,11 @@ export default class StructuredDescriptionContent extends YTNode {
       VideoDescriptionInfocardsSection, VideoDescriptionCourseSection, VideoDescriptionTranscriptSection,
       VideoDescriptionChannelSection, VideoDescriptionCommentsSection,
       VideoDescriptionYouchatSectionView, HorizontalCardList, ReelShelf, VideoAttributesSectionView,
-      HowThisWasMadeSectionView, ExpandableMetadata, MerchandiseShelf, HypeFanCreditsSectionView
+      HowThisWasMadeSectionView, ExpandableMetadata, MerchandiseShelf, HypeFanCreditsSectionView,
+      // `ItemSection` wraps sections YouTube has not given a dedicated renderer,
+      // `MacroMarkersListView` is the chapters entry. Both are observed here on
+      // ordinary videos; without them every description parse logs a mismatch.
+      ItemSection, MacroMarkersListView
     ]);
   }
 }
