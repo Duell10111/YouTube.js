@@ -1,6 +1,7 @@
 import * as Constants from './Constants.js';
 import * as Log from './Log.js';
 import { parseSidx, toByteRanges } from './Mp4SidxParser.js';
+import { parseSabrUrl } from '../core/sabr/SabrSegmentSource.js';
 import { getStreamingInfo } from './StreamingInfo.js';
 import { InnertubeError } from './Utils.js';
 
@@ -8,7 +9,7 @@ import type Actions from '../core/Actions.js';
 import type Player from '../core/Player.js';
 import type { IStreamingData } from '../parser/index.js';
 import type { FormatFilter, URLTransformer } from '../types/index.js';
-import type { HlsOptions } from '../types/HlsOptions.js';
+import type { HlsOptions, SabrHlsOptions, SabrPlaylistIndex } from '../types/HlsOptions.js';
 import type { CaptionTrackData } from '../parser/classes/PlayerCaptionsTracklist.js';
 import type { AudioRepresentation, AudioSet, SegmentInfo, VideoRepresentation, VideoSet } from './StreamingInfo.js';
 import type { ByteRange } from './Mp4SidxParser.js';
@@ -123,6 +124,40 @@ function renderMediaPlaylist(
     lines.push(`#EXT-X-BYTERANGE:${range.length}@${range.offset}`);
     lines.push(segment_info.base_url);
   }
+
+  lines.push('#EXT-X-ENDLIST');
+
+  return `${lines.join('\n')}\n`;
+}
+
+/**
+ * The `segments`-mode media playlist: one numbered URL per segment.
+ *
+ * SABR has no byte ranges to point at — the server decides what to send and
+ * addresses it by sequence number — so the playlist names segments the same way
+ * and a local server turns each request back into a SABR pull.
+ *
+ * Sequence numbers are 1-based, which is why `EXT-X-MEDIA-SEQUENCE` is `1`: the
+ * number in the URL is then the number SABR uses, with nothing to translate.
+ */
+function renderSegmentPlaylist(format_key: string, index: SabrPlaylistIndex, base_url: string): string {
+  const prefix = `${base_url.replace(/\/$/, '')}/${encodeURIComponent(format_key)}`;
+  const target_duration = Math.ceil(Math.max(...index.durations));
+
+  const lines = [
+    '#EXTM3U',
+    '#EXT-X-VERSION:7',
+    '#EXT-X-INDEPENDENT-SEGMENTS',
+    '#EXT-X-PLAYLIST-TYPE:VOD',
+    `#EXT-X-TARGETDURATION:${target_duration}`,
+    '#EXT-X-MEDIA-SEQUENCE:1',
+    `#EXT-X-MAP:URI=${quote(`${prefix}/init.mp4`)}`
+  ];
+
+  index.durations.forEach((duration, position) => {
+    lines.push(`#EXTINF:${duration.toFixed(5)},`);
+    lines.push(`${prefix}/${position + 1}.m4s`);
+  });
 
   lines.push('#EXT-X-ENDLIST');
 
@@ -348,6 +383,29 @@ function renderMaster(videos: SelectedVideo[], audios: SelectedAudio[]): string 
 }
 
 /**
+ * Drops every representation the SABR stream did not initialize.
+ *
+ * The sets come from the whole player response, while a SABR stream holds only
+ * the formats it asked for. Whatever is left over has no segment index and no
+ * way to be served, so it must not reach the manifest.
+ */
+function restrictToSabrIndex<T extends VideoSet | AudioSet>(sets: T[], sabr: SabrHlsOptions): T[] {
+  return sets
+    .map((set) => ({
+      ...set,
+      representations: set.representations.filter((representation) => {
+        if (!isIndexed(representation.segment_info))
+          return false;
+
+        const parsed = parseSabrUrl(representation.segment_info.base_url);
+
+        return !!parsed && !!sabr.index[parsed.key]?.durations.length;
+      })
+    } as T))
+    .filter((set) => set.representations.length > 0);
+}
+
+/**
  * Builds an HLS presentation from the adaptive formats.
  *
  * **Why this exists next to YouTube's own HLS manifest:** YouTube only offers
@@ -380,12 +438,22 @@ export async function toHLS(
   if (is_post_live_dvr)
     throw new InnertubeError('Post Live DVR videos are not supported. Use the HLS manifest provided by YouTube in `streaming_data.hls_manifest_url` instead.');
 
-  if (!actions)
+  // Only the byte-range path fetches indexes; in segments mode the schedule
+  // comes out of the SABR stream, so an Actions instance is not needed for that.
+  if (!actions && options.mode !== 'segments')
     throw new InnertubeError('An Actions instance is required to read the segment indexes');
 
-  if (options.mode && options.mode !== 'byterange')
-    throw new InnertubeError(`Unsupported mode: ${options.mode}. Only 'byterange' is implemented; 'segments' arrives with SABR.`);
+  const is_segments = options.mode === 'segments';
 
+  if (options.mode && options.mode !== 'byterange' && !is_segments)
+    throw new InnertubeError(`Unsupported mode: ${options.mode}. Use 'byterange' or 'segments'.`);
+
+  if (is_segments && !options.sabr)
+    throw new InnertubeError('Mode \'segments\' needs `sabr` with a base URL and a segment index. Build the index with buildSabrHlsIndex().');
+
+  // In segments mode the format URLs have to be the `sabr://` form, because the
+  // format key in them is what pairs a rendition with its entry in the index.
+  // Setting it here rather than trusting the caller keeps the two in step.
   const { video_sets, audio_sets } = await getStreamingInfo(
     streaming_data,
     false,
@@ -396,11 +464,20 @@ export async function toHLS(
     actions,
     undefined,
     caption_tracks,
-    options
+    is_segments ? { ...options, is_sabr: true } : options
   );
 
-  const videos = pickVideoRenditions(video_sets, options);
-  const audios = pickAudioRenditions(audio_sets);
+  // With SABR the server does the adapting, and one stream carries exactly the
+  // formats it was asked for — so a segments-mode manifest offers those and
+  // nothing else. Keeping the full ladder would name renditions no segment
+  // request could ever be answered for. `codec_preference`, `max_height` and
+  // `max_video_renditions` therefore have no effect in this mode; choose the
+  // codec when selecting the formats for the SabrStream instead.
+  const usable_video_sets = is_segments ? restrictToSabrIndex(video_sets, options.sabr!) : video_sets;
+  const usable_audio_sets = is_segments ? restrictToSabrIndex(audio_sets, options.sabr!) : audio_sets;
+
+  const videos = pickVideoRenditions(usable_video_sets, options);
+  const audios = pickAudioRenditions(usable_audio_sets);
 
   if (!videos.length)
     throw new InnertubeError('No usable video renditions. The formats are either SABR-only, not mp4, or carry no segment index.');
@@ -419,7 +496,22 @@ export async function toHLS(
     if (!isIndexed(entry.segment_info))
       throw new InnertubeError('Selected a rendition without a segment index');
 
-    const ranges = await getByteRanges(entry.segment_info, actions);
+    if (is_segments) {
+      const sabr = options.sabr!;
+      const parsed = parseSabrUrl(entry.segment_info.base_url);
+
+      if (!parsed)
+        throw new InnertubeError(`Expected a sabr:// URL in segments mode, got ${entry.segment_info.base_url}`);
+
+      const index = sabr.index[parsed.key];
+
+      if (!index?.durations.length)
+        throw new InnertubeError(`No segment index for format ${parsed.key}. The SABR stream did not initialize it.`);
+
+      return { name: entry.name, content: renderSegmentPlaylist(parsed.key, index, sabr.base_url) };
+    }
+
+    const ranges = await getByteRanges(entry.segment_info, actions!);
 
     return { name: entry.name, content: renderMediaPlaylist(entry.segment_info, ranges) };
   }));
