@@ -20,6 +20,7 @@ export { default as UpdateSubscribeButtonAction } from './classes/actions/Update
 export { default as ActiveAccountHeader } from './classes/ActiveAccountHeader.js';
 export { default as AddToPlaylist } from './classes/AddToPlaylist.js';
 export { default as Alert } from './classes/Alert.js';
+export { default as AlertWithActions } from './classes/AlertWithActions.js';
 export { default as AlertWithButton } from './classes/AlertWithButton.js';
 export { default as AnimatedThumbnailOverlayView } from './classes/AnimatedThumbnailOverlayView.js';
 export { default as AttributionView } from './classes/AttributionView.js';
@@ -309,6 +310,7 @@ export { default as MacroMarkersListItem } from './classes/MacroMarkersListItem.
 export { default as MacroMarkersListView } from './classes/MacroMarkersListView.js';
 export { default as MaybeHistoryEndpoint } from './classes/MaybeHistoryEndpoint.js';
 export { default as Menu } from './classes/menus/Menu.js';
+export { default as MenuCustomIconItem } from './classes/menus/MenuCustomIconItem.js';
 export { default as MenuFlexibleItem } from './classes/menus/MenuFlexibleItem.js';
 export { default as MenuNavigationItem } from './classes/menus/MenuNavigationItem.js';
 export { default as MenuPopup } from './classes/menus/MenuPopup.js';
