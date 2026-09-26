@@ -4,6 +4,7 @@ import ClipSection from './ClipSection.js';
 import ContinuationItem from './ContinuationItem.js';
 import EngagementPanelTitleHeader from './EngagementPanelTitleHeader.js';
 import MacroMarkersList from './MacroMarkersList.js';
+import MacroMarkersListView from './MacroMarkersListView.js';
 import PlaylistCollaborationView from './PlaylistCollaborationView.js';
 import ProductList from './ProductList.js';
 import SectionList from './SectionList.js';
@@ -19,7 +20,8 @@ export default class EngagementPanelSectionList extends YTNode {
   public header: EngagementPanelTitleHeader | OverlayPanelHeader | null;
   public content:
     PlaylistCollaborationView | VideoAttributeView | ItemSection | SectionList | ContinuationItem |
-    ClipSection | StructuredDescriptionContent | MacroMarkersList | ProductList | RichTextListView | null;
+    ClipSection | StructuredDescriptionContent | MacroMarkersList | MacroMarkersListView |
+    ProductList | RichTextListView | null;
   public target_id?: string;
   public panel_identifier?: string;
   public identifier?: {
@@ -34,7 +36,9 @@ export default class EngagementPanelSectionList extends YTNode {
     this.content = Parser.parseItem(data.content, [
       PlaylistCollaborationView, VideoAttributeView, ItemSection, SectionList,
       ContinuationItem, ClipSection, StructuredDescriptionContent,
-      MacroMarkersList, ProductList, RichTextListView
+      // The chapters panel comes as the view model on the TV client and as
+      // `MacroMarkersList` elsewhere, so both belong here.
+      MacroMarkersList, MacroMarkersListView, ProductList, RichTextListView
     ]);
 
     this.panel_identifier = data.panelIdentifier;

@@ -20,6 +20,7 @@ import VideoDescriptionGamingSection from './VideoDescriptionGamingSection.js';
 import CourseProgressView from './CourseProgressView.js';
 import VideoDescriptionChannelSection from './VideoDescriptionChannelSection.js';
 import VideoDescriptionCommentsSection from './VideoDescriptionCommentsSection.js';
+import MacroMarkersListView from './MacroMarkersListView.js';
 
 export default class StructuredDescriptionContent extends YTNode {
   static type = 'StructuredDescriptionContent';
@@ -30,7 +31,7 @@ export default class StructuredDescriptionContent extends YTNode {
     VideoDescriptionCourseSection | VideoDescriptionChannelSection | VideoDescriptionCommentsSection |
     VideoDescriptionYouchatSectionView | HorizontalCardList | ReelShelf | VideoAttributesSectionView |
     HowThisWasMadeSectionView | ExpandableMetadata | MerchandiseShelf | HypeFanCreditsSectionView |
-    ItemSection | CourseProgressView
+    ItemSection | CourseProgressView | MacroMarkersListView
   >;
 
   constructor(data: RawNode) {
@@ -41,7 +42,7 @@ export default class StructuredDescriptionContent extends YTNode {
       VideoDescriptionTranscriptSection, VideoDescriptionChannelSection, VideoDescriptionCommentsSection,
       VideoDescriptionYouchatSectionView, HorizontalCardList, ReelShelf, VideoAttributesSectionView,
       HowThisWasMadeSectionView, ExpandableMetadata, MerchandiseShelf, HypeFanCreditsSectionView,
-      ItemSection, CourseProgressView
+      ItemSection, CourseProgressView, MacroMarkersListView
     ]);
   }
 }
