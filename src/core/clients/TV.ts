@@ -125,9 +125,9 @@ export default class TV {
     throwIfMissing({ target });
 
     return resolvePlayableInfo<VideoInfo>(
-      (client) => this.getInfo(target, {
+      async (client) => this.getInfo(target, {
         player_client: client,
-        po_token: options?.po_token,
+        po_token: (await options?.po_token_for?.(client)) ?? options?.po_token,
         player_skip_auth: options?.skip_auth
       }),
       options

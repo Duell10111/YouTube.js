@@ -153,12 +153,23 @@ export default class Innertube {
 
     const session = this.#session;
 
+    const video_id = typeof target === 'string' ? target : target.payload?.videoId;
+
+    if (options?.player_only && !video_id)
+      throw new InnertubeError('player_only needs a video id or a watch endpoint', { target });
+
     return resolvePlayableInfo<VideoInfo>(
-      (client) => this.getInfo(target, {
-        client,
-        po_token: options?.po_token,
-        skip_auth: options?.skip_auth ?? (session.logged_in && !Constants.AUTH_SUPPORTED_CLIENTS.includes(client))
-      }),
+      async (client) => {
+        const info_options: GetVideoInfoOptions = {
+          client,
+          po_token: (await options?.po_token_for?.(client)) ?? options?.po_token,
+          skip_auth: options?.skip_auth ?? (session.logged_in && !Constants.AUTH_SUPPORTED_CLIENTS.includes(client))
+        };
+
+        return options?.player_only
+          ? this.getBasicInfo(video_id as string, info_options)
+          : this.getInfo(target, info_options);
+      },
       options
     );
   }

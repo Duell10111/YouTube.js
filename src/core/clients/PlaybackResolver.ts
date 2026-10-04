@@ -50,6 +50,22 @@ export interface ResolvePlayableInfoOptions<T> {
   clients_fallback?: InnerTubeClient[];
   /** Called after every attempt — useful for logging and diagnostics. */
   on_attempt?: (attempt: PlaybackAttempt) => void;
+  /**
+   * Supplies a PoToken per client for the `/player` request, taking precedence
+   * over a fixed `po_token`. Return `undefined` for clients that need none.
+   *
+   * Web clients (`WEB`, `MWEB`, …) want a content-bound token (minted for the
+   * video id); app clients such as `IOS` attest differently and ignore it.
+   * Only `getPlayableInfo` uses this — `resolvePlayableInfo` itself does not.
+   */
+  po_token_for?: (client: InnerTubeClient) => Promise<string | undefined> | string | undefined;
+  /**
+   * Requests only `/player`, not `/next`. Needed for `TV_DOWNGRADED` with
+   * credentials: it returns a signed-in user's private videos from `/player`,
+   * but answers `/next` with HTTP 400 (measured 2026-10-04). Only
+   * `Innertube#getPlayableInfo` uses this.
+   */
+  player_only?: boolean;
 }
 
 export interface ResolvedPlayableInfo<T> {
