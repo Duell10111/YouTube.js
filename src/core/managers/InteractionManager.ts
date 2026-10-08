@@ -24,7 +24,7 @@ export default class InteractionManager {
     const like_endpoint = new NavigationEndpoint({
       likeEndpoint: {
         status: 'LIKE',
-        target: video_id
+        target: { videoId: video_id }
       }
     });
 
@@ -44,7 +44,7 @@ export default class InteractionManager {
     const dislike_endpoint = new NavigationEndpoint({
       likeEndpoint: {
         status: 'DISLIKE',
-        target: video_id
+        target: { videoId: video_id }
       }
     });
 
@@ -64,7 +64,7 @@ export default class InteractionManager {
     const remove_like_endpoint = new NavigationEndpoint({
       likeEndpoint: {
         status: 'INDIFFERENT',
-        target: video_id
+        target: { videoId: video_id }
       }
     });
 
