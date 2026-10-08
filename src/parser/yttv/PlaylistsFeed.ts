@@ -1,4 +1,4 @@
-import { GridContinuation, Parser } from '../index.js';
+import { GridContinuation, Parser, TvSurfaceContentContinuation } from '../index.js';
 
 import type { IBrowseResponse } from '../types/index.js';
 import type { Actions, ApiResponse } from '../../core/index.js';
@@ -25,8 +25,13 @@ export default class PlaylistsFeed {
     }
 
     if (this.#page.continuation_contents) {
-      const data = this.#page.continuation_contents?.as(GridContinuation);
-      if (!data.contents) {
+      // The TV client answers later pages either with a plain grid
+      // continuation or with the grid nested in a surface continuation.
+      const continuation = this.#page.continuation_contents;
+      const data = continuation.is(TvSurfaceContentContinuation)
+        ? continuation.content?.as(Grid)
+        : continuation.as(GridContinuation);
+      if (!data?.contents) {
         throw new InnertubeError('No contents found in the response');
       }
       this.contents = data.contents;
