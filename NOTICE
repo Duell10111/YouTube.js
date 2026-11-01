@@ -1,0 +1,45 @@
+This product includes work derived from third-party projects.
+
+--------------------------------------------------------------------------------
+SABR support (src/core/sabr/**, protos/sabr/**)
+--------------------------------------------------------------------------------
+
+The SABR protocol buffer definitions under `protos/sabr/` were taken verbatim
+from SmartTube, at:
+
+    exoplayer-amzn-2.10.6/library/sabr/src/main/proto/sabr/
+
+The TypeScript implementation under `src/core/sabr/` is a port of the Java
+implementation in the same library:
+
+    UmpDecoder.ts   ← parser/ump/UMPDecoder.java, parser/ump/UMPPartId.java
+    SabrProcessor.ts ← parser/SabrProcessor.java
+    SabrStream.ts    ← parser/SabrStream.java,
+                       manifest/SabrManifest.java#createVideoPlaybackAbrRequest
+
+SmartTube itself is distributed under the MIT License
+(Copyright (c) 2020-present yuliskov, https://github.com/yuliskov/SmartTube).
+The `exoplayer-amzn-2.10.6` tree it vendors derives from ExoPlayer, which is
+licensed under the Apache License, Version 2.0:
+
+    Copyright (C) The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+--------------------------------------------------------------------------------
+PoToken development scripts (dev-scripts/lib/potoken.mjs)
+--------------------------------------------------------------------------------
+
+Uses `bgutils-js` (MIT, Copyright (c) LuanRT) and follows the token split used by
+SmartTube's `potokennp2` package (MIT, see above). Development only; not part of
+the published package.
